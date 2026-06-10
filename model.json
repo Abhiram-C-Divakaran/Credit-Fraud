@@ -1,0 +1,4352 @@
+
+{
+  "scaler": {
+    "mean": [
+      169.0055936676629,
+      12.7905,
+      55.9364538734038,
+      4.076,
+      0.1945,
+      0.3745
+    ],
+    "scale": [
+      755.7702007017942,
+      6.278901954163676,
+      107.80894373180588,
+      3.2222234559384617,
+      0.3958152978347333,
+      0.48399354334536376
+    ]
+  },
+  "trees": [
+    {
+      "feature": 1,
+      "threshold": -1.240742,
+      "left": {
+        "leaf": true,
+        "prob": 1
+      },
+      "right": {
+        "feature": 0,
+        "threshold": 0.755255,
+        "left": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "feature": 0,
+            "threshold": -0.156763,
+            "left": {
+              "feature": 0,
+              "threshold": -0.207632,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "feature": 2,
+              "threshold": 0.097312,
+              "left": {
+                "feature": 3,
+                "threshold": 1.372965,
+                "left": {
+                  "feature": 2,
+                  "threshold": -0.463124,
+                  "left": {
+                    "feature": 2,
+                    "threshold": -0.467488,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.387106,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 3,
+            "threshold": 0.597103,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 2,
+      "threshold": 0.716803,
+      "left": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 0,
+          "threshold": -0.122873,
+          "left": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 3,
+              "threshold": 1.06262,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 1.217793,
+              "left": {
+                "feature": 3,
+                "threshold": -0.489103,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": -1.320374,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 2,
+            "threshold": -0.243401,
+            "left": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "feature": 0,
+                "threshold": 0.333794,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 0,
+                  "threshold": 0.418554,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 0,
+                    "threshold": 1.030187,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": -1.240742,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": 1.546369,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": -1.161111,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.466737,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 3,
+        "threshold": 0.441931,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 0,
+          "threshold": -0.197831,
+          "left": {
+            "feature": 0,
+            "threshold": -0.198745,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "leaf": true,
+              "prob": 0
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 3,
+      "threshold": 0.752276,
+      "left": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 3,
+          "threshold": 0.441931,
+          "left": {
+            "feature": 2,
+            "threshold": 3.738076,
+            "left": {
+              "feature": 1,
+              "threshold": -1.400006,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 3,
+                "threshold": -0.178759,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 5,
+                  "threshold": 0.259301,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "feature": 1,
+                    "threshold": 1.546369,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "feature": 2,
+            "threshold": 0.95247,
+            "left": {
+              "feature": 2,
+              "threshold": -0.03339,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 1,
+                "threshold": -1.559269,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 3,
+          "threshold": 0.131586,
+          "left": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 3,
+              "threshold": -0.178759,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 0,
+                "threshold": 0.21211,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "feature": 3,
+              "threshold": -0.178759,
+              "left": {
+                "feature": 0,
+                "threshold": -0.218805,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": -1.240742,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                }
+              },
+              "right": {
+                "feature": 0,
+                "threshold": 0.267367,
+                "left": {
+                  "feature": 1,
+                  "threshold": -1.240742,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 0,
+                    "threshold": -0.134083,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.1667
+                    }
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.047441,
+              "left": {
+                "feature": 0,
+                "threshold": -0.162096,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 3,
+                  "threshold": 0.441931,
+                  "left": {
+                    "feature": 5,
+                    "threshold": 0.259301,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.2727
+                    }
+                  },
+                  "right": {
+                    "feature": 2,
+                    "threshold": 0.492736,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              },
+              "right": {
+                "feature": 2,
+                "threshold": -0.146057,
+                "left": {
+                  "feature": 1,
+                  "threshold": 0.988947,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 2,
+        "threshold": 0.111087,
+        "left": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 1,
+            "threshold": -1.320374,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 2,
+              "threshold": -0.392081,
+              "left": {
+                "feature": 3,
+                "threshold": 1.993654,
+                "left": {
+                  "feature": 1,
+                  "threshold": 1.546369,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "feature": 2,
+                  "threshold": -0.448795,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              },
+              "right": {
+                "feature": 3,
+                "threshold": 1.372965,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 3,
+                  "threshold": 1.68331,
+                  "left": {
+                    "feature": 0,
+                    "threshold": -0.113873,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  },
+                  "right": {
+                    "feature": 2,
+                    "threshold": -0.128718,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 2,
+              "threshold": -0.268967,
+              "left": {
+                "feature": 3,
+                "threshold": 1.372965,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 1.06262,
+              "left": {
+                "feature": 0,
+                "threshold": -0.047525,
+                "left": {
+                  "feature": 1,
+                  "threshold": -1.479638,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 5,
+          "threshold": 0.259301,
+          "left": {
+            "feature": 1,
+            "threshold": -0.762952,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 4,
+              "threshold": 0.771825,
+              "left": {
+                "feature": 3,
+                "threshold": 1.838482,
+                "left": {
+                  "feature": 1,
+                  "threshold": 1.546369,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 2,
+      "threshold": 0.387551,
+      "left": {
+        "feature": 3,
+        "threshold": 1.06262,
+        "left": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 0,
+            "threshold": 2.208725,
+            "left": {
+              "feature": 3,
+              "threshold": 0.752276,
+              "left": {
+                "feature": 0,
+                "threshold": 0.353166,
+                "left": {
+                  "feature": 1,
+                  "threshold": -1.240742,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 2,
+                    "threshold": -0.230699,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.0011
+                    }
+                  }
+                },
+                "right": {
+                  "feature": 0,
+                  "threshold": 0.35948,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 2,
+                    "threshold": 0.113702,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.5
+                    }
+                  }
+                }
+              },
+              "right": {
+                "feature": 0,
+                "threshold": 0.226252,
+                "left": {
+                  "feature": 2,
+                  "threshold": 0.287972,
+                  "left": {
+                    "feature": 2,
+                    "threshold": -0.348991,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.0645
+                    }
+                  },
+                  "right": {
+                    "feature": 1,
+                    "threshold": -1.081479,
+                    "left": {
+                      "leaf": true,
+                      "prob": 1
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  }
+                },
+                "right": {
+                  "feature": 0,
+                  "threshold": 0.320018,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": -1.161111,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            }
+          },
+          "right": {
+            "feature": 3,
+            "threshold": 0.752276,
+            "left": {
+              "feature": 3,
+              "threshold": 0.441931,
+              "left": {
+                "feature": 2,
+                "threshold": 0.289845,
+                "left": {
+                  "feature": 1,
+                  "threshold": -1.320374,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 5,
+                    "threshold": 0.259301,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.0164
+                    }
+                  }
+                },
+                "right": {
+                  "feature": 0,
+                  "threshold": 0.082624,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": -1.320374,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 2,
+                  "threshold": 0.201339,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "feature": 0,
+                "threshold": -0.106386,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 1.68331,
+              "left": {
+                "feature": 1,
+                "threshold": 1.387106,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 2,
+                "threshold": -0.448795,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 3,
+            "threshold": 1.372965,
+            "left": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "feature": 2,
+                "threshold": -0.338394,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 3,
+          "threshold": -0.799448,
+          "left": {
+            "leaf": true,
+            "prob": 0
+          },
+          "right": {
+            "feature": 0,
+            "threshold": -0.208322,
+            "left": {
+              "feature": 3,
+              "threshold": 0.441931,
+              "left": {
+                "feature": 5,
+                "threshold": 0.259301,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 0,
+              "threshold": -0.178183,
+              "left": {
+                "feature": 1,
+                "threshold": -0.20553,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 2,
+                  "threshold": 2.761375,
+                  "left": {
+                    "feature": 0,
+                    "threshold": -0.19301,
+                    "left": {
+                      "leaf": true,
+                      "prob": 1
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 0,
+      "threshold": 0.208348,
+      "left": {
+        "feature": 3,
+        "threshold": 1.06262,
+        "left": {
+          "feature": 2,
+          "threshold": 1.167874,
+          "left": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 1.546369,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 0,
+            "threshold": -0.136892,
+            "left": {
+              "feature": 1,
+              "threshold": -0.762952,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": -0.243492,
+          "left": {
+            "feature": 1,
+            "threshold": -1.161111,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 1.387106,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 3,
+            "threshold": 1.68331,
+            "left": {
+              "feature": 1,
+              "threshold": -1.081479,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 5,
+          "threshold": 0.259301,
+          "left": {
+            "feature": 0,
+            "threshold": 1.334309,
+            "left": {
+              "feature": 2,
+              "threshold": 0.226465,
+              "left": {
+                "feature": 2,
+                "threshold": -0.389486,
+                "left": {
+                  "feature": 2,
+                  "threshold": -0.401705,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "feature": 0,
+                "threshold": 0.448478,
+                "left": {
+                  "feature": 1,
+                  "threshold": -1.320374,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 0.441931,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.859154,
+              "left": {
+                "feature": 1,
+                "threshold": 1.466737,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": -0.421835,
+          "left": {
+            "feature": 3,
+            "threshold": -0.023586,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "feature": 0,
+                "threshold": 1.030187,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 3,
+            "threshold": -0.333931,
+            "left": {
+              "feature": 1,
+              "threshold": -0.444425,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 1,
+      "threshold": -1.240742,
+      "left": {
+        "leaf": true,
+        "prob": 1
+      },
+      "right": {
+        "feature": 2,
+        "threshold": 1.31599,
+        "left": {
+          "feature": 1,
+          "threshold": 1.546369,
+          "left": {
+            "leaf": true,
+            "prob": 0
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": 1.14821,
+          "left": {
+            "leaf": true,
+            "prob": 0
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 2,
+      "threshold": 0.716803,
+      "left": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 0,
+            "threshold": 6.998261,
+            "left": {
+              "feature": 1,
+              "threshold": 1.546369,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 3,
+          "threshold": 0.752276,
+          "left": {
+            "feature": 0,
+            "threshold": 0.408397,
+            "left": {
+              "feature": 1,
+              "threshold": -1.320374,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.511415,
+              "left": {
+                "feature": 3,
+                "threshold": 0.131586,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 3,
+            "threshold": 1.372965,
+            "left": {
+              "feature": 1,
+              "threshold": -0.922215,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 2,
+                "threshold": 0.134,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 3,
+        "threshold": 0.441931,
+        "left": {
+          "feature": 0,
+          "threshold": 0.117089,
+          "left": {
+            "feature": 2,
+            "threshold": 1.997335,
+            "left": {
+              "feature": 1,
+              "threshold": -1.400006,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        },
+        "right": {
+          "feature": 5,
+          "threshold": 0.259301,
+          "left": {
+            "feature": 1,
+            "threshold": -0.762952,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 1.227842,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 0,
+      "threshold": 0.157496,
+      "left": {
+        "feature": 2,
+        "threshold": 0.716803,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": 1.340123,
+          "left": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 3,
+              "threshold": 0.441931,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": -1.081479,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 4,
+                "threshold": 0.771825,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 2,
+            "threshold": 1.772609,
+            "left": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "feature": 3,
+                "threshold": 0.441931,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 3,
+        "threshold": 0.441931,
+        "left": {
+          "feature": 2,
+          "threshold": 0.118846,
+          "left": {
+            "feature": 4,
+            "threshold": 0.771825,
+            "left": {
+              "feature": 2,
+              "threshold": 0.068417,
+              "left": {
+                "feature": 3,
+                "threshold": 0.131586,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": -1.479638,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": -1.320374,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              }
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.402145,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 3,
+                "threshold": -0.799448,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -1.001847,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 4,
+              "threshold": 0.771825,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": -0.026381,
+          "left": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 0,
+              "threshold": 0.610164,
+              "left": {
+                "feature": 0,
+                "threshold": 0.266908,
+                "left": {
+                  "feature": 0,
+                  "threshold": 0.191322,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.439868,
+              "left": {
+                "feature": 0,
+                "threshold": 0.402665,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -0.285161,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 1.227842,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 2,
+      "threshold": 0.739323,
+      "left": {
+        "feature": 3,
+        "threshold": 1.06262,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 0,
+            "threshold": 0.676081,
+            "left": {
+              "feature": 2,
+              "threshold": 0.290198,
+              "left": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 1.307474,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 4,
+            "threshold": 0.771825,
+            "left": {
+              "feature": 1,
+              "threshold": 1.466737,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 2,
+              "threshold": -0.472438,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 2,
+        "threshold": 1.198287,
+        "left": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.475479,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 3,
+              "threshold": -0.489103,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 3,
+          "threshold": -0.178759,
+          "left": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 3,
+      "threshold": 0.752276,
+      "left": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 0,
+            "threshold": 0.075846,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.078306,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": 0.29397,
+          "left": {
+            "feature": 0,
+            "threshold": 0.194452,
+            "left": {
+              "feature": 1,
+              "threshold": -1.320374,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 0,
+                "threshold": -0.129446,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 0,
+                  "threshold": -0.128948,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 1,
+                    "threshold": 1.546369,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 2,
+              "threshold": -0.399255,
+              "left": {
+                "feature": 2,
+                "threshold": -0.509712,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "feature": 3,
+                "threshold": -0.333931,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 3,
+            "threshold": -0.644276,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "feature": 1,
+                "threshold": -0.68332,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 2,
+                  "threshold": 2.158086,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              },
+              "right": {
+                "feature": 2,
+                "threshold": 0.777482,
+                "left": {
+                  "feature": 0,
+                  "threshold": -0.163684,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 0,
+        "threshold": -0.140895,
+        "left": {
+          "feature": 2,
+          "threshold": 0.105021,
+          "left": {
+            "feature": 4,
+            "threshold": 0.771825,
+            "left": {
+              "feature": 3,
+              "threshold": 1.68331,
+              "left": {
+                "feature": 1,
+                "threshold": -1.320374,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "feature": 3,
+                "threshold": 1.993654,
+                "left": {
+                  "feature": 1,
+                  "threshold": -1.161111,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                },
+                "right": {
+                  "feature": 2,
+                  "threshold": -0.448795,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 1.528137,
+              "left": {
+                "feature": 2,
+                "threshold": -0.20931,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 4,
+            "threshold": 0.771825,
+            "left": {
+              "feature": 0,
+              "threshold": -0.201233,
+              "left": {
+                "feature": 1,
+                "threshold": 1.227842,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 2,
+                "threshold": 0.157316,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": -0.524057,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 2,
+                    "threshold": 0.537707,
+                    "left": {
+                      "leaf": true,
+                      "prob": 1
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.5
+                    }
+                  }
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 4,
+            "threshold": 0.771825,
+            "left": {
+              "feature": 2,
+              "threshold": -0.097511,
+              "left": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 0.272261,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 4,
+      "threshold": 0.771825,
+      "left": {
+        "feature": 3,
+        "threshold": 1.06262,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 0,
+            "threshold": 1.747584,
+            "left": {
+              "feature": 0,
+              "threshold": -0.209183,
+              "left": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 3.016145,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 0,
+          "threshold": -0.13136,
+          "left": {
+            "feature": 2,
+            "threshold": 0.690097,
+            "left": {
+              "feature": 3,
+              "threshold": 1.993654,
+              "left": {
+                "feature": 3,
+                "threshold": 1.68331,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": -0.842584,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                }
+              },
+              "right": {
+                "feature": 3,
+                "threshold": 2.303999,
+                "left": {
+                  "feature": 1,
+                  "threshold": 0.67042,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -0.922215,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.129549,
+              "left": {
+                "feature": 0,
+                "threshold": 0.035021,
+                "left": {
+                  "feature": 2,
+                  "threshold": -0.228933,
+                  "left": {
+                    "feature": 2,
+                    "threshold": -0.440271,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.3333
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 0,
+        "threshold": -0.136499,
+        "left": {
+          "feature": 5,
+          "threshold": 0.259301,
+          "left": {
+            "feature": 3,
+            "threshold": 1.68331,
+            "left": {
+              "feature": 1,
+              "threshold": -1.240742,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 3,
+                "threshold": 0.441931,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 0,
+                  "threshold": -0.174437,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "feature": 2,
+                    "threshold": 0.477439,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "feature": 3,
+            "threshold": 0.441931,
+            "left": {
+              "feature": 2,
+              "threshold": -0.124803,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 0,
+                "threshold": -0.203822,
+                "left": {
+                  "feature": 1,
+                  "threshold": -1.240742,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": -0.922215,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.466737,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": 0.039617,
+          "left": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 1,
+              "threshold": -1.320374,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 0,
+                "threshold": -0.066607,
+                "left": {
+                  "feature": 1,
+                  "threshold": 1.227842,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              }
+            },
+            "right": {
+              "feature": 2,
+              "threshold": -0.421835,
+              "left": {
+                "feature": 0,
+                "threshold": 0.372014,
+                "left": {
+                  "feature": 3,
+                  "threshold": 1.217793,
+                  "left": {
+                    "feature": 2,
+                    "threshold": -0.47171,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.1
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 3,
+                "threshold": 0.441931,
+                "left": {
+                  "feature": 0,
+                  "threshold": 0.512533,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": -1.240742,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 0,
+                    "threshold": 0.196655,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.4
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 0,
+            "threshold": -0.128801,
+            "left": {
+              "feature": 3,
+              "threshold": 0.752276,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 2,
+              "threshold": 0.23141,
+              "left": {
+                "feature": 1,
+                "threshold": -1.161111,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 5,
+                  "threshold": 0.259301,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "feature": 3,
+                    "threshold": -0.178759,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 1,
+      "threshold": -1.240742,
+      "left": {
+        "leaf": true,
+        "prob": 1
+      },
+      "right": {
+        "feature": 0,
+        "threshold": 0.327494,
+        "left": {
+          "feature": 1,
+          "threshold": 1.546369,
+          "left": {
+            "leaf": true,
+            "prob": 0
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": 1.546369,
+          "left": {
+            "leaf": true,
+            "prob": 0
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 2,
+      "threshold": 0.620123,
+      "left": {
+        "feature": 0,
+        "threshold": 0.671406,
+        "left": {
+          "feature": 3,
+          "threshold": 1.06262,
+          "left": {
+            "feature": 2,
+            "threshold": 0.243993,
+            "left": {
+              "feature": 1,
+              "threshold": -1.240742,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 3,
+                "threshold": 0.752276,
+                "left": {
+                  "feature": 1,
+                  "threshold": 1.546369,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "feature": 2,
+                  "threshold": -0.332953,
+                  "left": {
+                    "feature": 4,
+                    "threshold": 0.771825,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.1562
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": -1.400006,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 3,
+            "threshold": 1.68331,
+            "left": {
+              "feature": 2,
+              "threshold": -0.19844,
+              "left": {
+                "feature": 1,
+                "threshold": -1.161111,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 0,
+                  "threshold": 0.166623,
+                  "left": {
+                    "feature": 1,
+                    "threshold": 1.387106,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": -1.240742,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": 1.546369,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 1.993654,
+              "left": {
+                "feature": 0,
+                "threshold": -0.150343,
+                "left": {
+                  "feature": 5,
+                  "threshold": 0.259301,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "feature": 2,
+                    "threshold": -0.457333,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": -1.001847,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.387106,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 0,
+        "threshold": -0.138224,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 3,
+            "threshold": 1.838482,
+            "left": {
+              "feature": 3,
+              "threshold": 0.441931,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 2,
+                "threshold": 0.885749,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 4,
+                  "threshold": 0.771825,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 5,
+          "threshold": 0.259301,
+          "left": {
+            "feature": 1,
+            "threshold": -0.285161,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 0.752276,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 1,
+      "threshold": -1.240742,
+      "left": {
+        "leaf": true,
+        "prob": 1
+      },
+      "right": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 3,
+          "threshold": 1.68331,
+          "left": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 0.909315,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": 0.287767,
+          "left": {
+            "feature": 3,
+            "threshold": 1.06262,
+            "left": {
+              "feature": 1,
+              "threshold": 1.546369,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 0.750052,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 1,
+      "threshold": -1.240742,
+      "left": {
+        "leaf": true,
+        "prob": 1
+      },
+      "right": {
+        "feature": 3,
+        "threshold": 1.372965,
+        "left": {
+          "feature": 2,
+          "threshold": 1.425806,
+          "left": {
+            "feature": 4,
+            "threshold": 0.771825,
+            "left": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 3,
+                "threshold": 1.06262,
+                "left": {
+                  "feature": 0,
+                  "threshold": -0.1845,
+                  "left": {
+                    "feature": 3,
+                    "threshold": 0.752276,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.0049
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.1
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                },
+                "right": {
+                  "feature": 2,
+                  "threshold": -0.307997,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "feature": 1,
+                    "threshold": 0.750052,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 2,
+              "threshold": 0.29308,
+              "left": {
+                "feature": 0,
+                "threshold": 0.807448,
+                "left": {
+                  "feature": 2,
+                  "threshold": 0.112544,
+                  "left": {
+                    "feature": 1,
+                    "threshold": 1.546369,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  },
+                  "right": {
+                    "feature": 0,
+                    "threshold": 0.083986,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.466737,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 0,
+            "threshold": -0.136892,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": 1.546369,
+          "left": {
+            "leaf": true,
+            "prob": 0
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 4,
+      "threshold": 0.771825,
+      "left": {
+        "feature": 1,
+        "threshold": -1.240742,
+        "left": {
+          "leaf": true,
+          "prob": 1
+        },
+        "right": {
+          "feature": 2,
+          "threshold": 1.504798,
+          "left": {
+            "feature": 3,
+            "threshold": 1.993654,
+            "left": {
+              "feature": 3,
+              "threshold": 1.06262,
+              "left": {
+                "feature": 5,
+                "threshold": 0.259301,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 3,
+                  "threshold": 0.752276,
+                  "left": {
+                    "feature": 0,
+                    "threshold": -0.184544,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.0024
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  },
+                  "right": {
+                    "feature": 2,
+                    "threshold": -0.332953,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.25
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  }
+                }
+              },
+              "right": {
+                "feature": 2,
+                "threshold": 0.233859,
+                "left": {
+                  "feature": 1,
+                  "threshold": 1.466737,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "feature": 2,
+                  "threshold": 0.423901,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                }
+              }
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 2.459172,
+              "left": {
+                "feature": 1,
+                "threshold": 0.67042,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      },
+      "right": {
+        "feature": 3,
+        "threshold": 0.441931,
+        "left": {
+          "feature": 2,
+          "threshold": 0.289845,
+          "left": {
+            "feature": 0,
+            "threshold": 0.381725,
+            "left": {
+              "feature": 1,
+              "threshold": 1.546369,
+              "left": {
+                "feature": 3,
+                "threshold": 0.131586,
+                "left": {
+                  "feature": 1,
+                  "threshold": -1.320374,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                },
+                "right": {
+                  "feature": 0,
+                  "threshold": -0.1254,
+                  "left": {
+                    "feature": 5,
+                    "threshold": 0.259301,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.0909
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 2,
+              "threshold": -0.131318,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -0.842584,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "feature": 2,
+                "threshold": 0.311008,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 3,
+      "threshold": 1.06262,
+      "left": {
+        "feature": 3,
+        "threshold": 0.441931,
+        "left": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 3,
+              "threshold": -0.178759,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 2,
+            "threshold": 0.287767,
+            "left": {
+              "feature": 0,
+              "threshold": 0.5247,
+              "left": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": -0.762952,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 5,
+                "threshold": 0.259301,
+                "left": {
+                  "feature": 0,
+                  "threshold": 0.084913,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": 0.423223,
+          "left": {
+            "feature": 2,
+            "threshold": 0.052715,
+            "left": {
+              "feature": 4,
+              "threshold": 0.771825,
+              "left": {
+                "feature": 3,
+                "threshold": 0.752276,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": -1.320374,
+                  "left": {
+                    "leaf": true,
+                    "prob": 1
+                  },
+                  "right": {
+                    "feature": 5,
+                    "threshold": 0.259301,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.1667
+                    }
+                  }
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": -1.240742,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              }
+            },
+            "right": {
+              "feature": 1,
+              "threshold": -1.320374,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 1.387106,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 0,
+        "threshold": -0.144561,
+        "left": {
+          "feature": 2,
+          "threshold": -0.238293,
+          "left": {
+            "feature": 3,
+            "threshold": 1.993654,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "feature": 4,
+            "threshold": 0.771825,
+            "left": {
+              "feature": 1,
+              "threshold": -0.524057,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "feature": 2,
+                "threshold": 1.411602,
+                "left": {
+                  "feature": 2,
+                  "threshold": 0.468881,
+                  "left": {
+                    "feature": 0,
+                    "threshold": -0.18715,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 0
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 2,
+          "threshold": -0.398356,
+          "left": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 0,
+              "threshold": 0.084684,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    },
+    {
+      "feature": 3,
+      "threshold": 0.752276,
+      "left": {
+        "feature": 0,
+        "threshold": 1.099574,
+        "left": {
+          "feature": 3,
+          "threshold": 0.441931,
+          "left": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 1,
+              "threshold": -1.240742,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            },
+            "right": {
+              "feature": 0,
+              "threshold": 0.221636,
+              "left": {
+                "feature": 2,
+                "threshold": 1.122047,
+                "left": {
+                  "feature": 4,
+                  "threshold": 0.771825,
+                  "left": {
+                    "feature": 1,
+                    "threshold": -1.240742,
+                    "left": {
+                      "leaf": true,
+                      "prob": 1
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  },
+                  "right": {
+                    "feature": 1,
+                    "threshold": 1.546369,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.0143
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 1
+                    }
+                  }
+                },
+                "right": {
+                  "feature": 3,
+                  "threshold": -0.178759,
+                  "left": {
+                    "feature": 1,
+                    "threshold": -0.68332,
+                    "left": {
+                      "leaf": true,
+                      "prob": 1
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0
+                    }
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": -1.161111,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "feature": 1,
+                  "threshold": 1.466737,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 5,
+            "threshold": 0.259301,
+            "left": {
+              "feature": 1,
+              "threshold": -1.240742,
+              "left": {
+                "leaf": true,
+                "prob": 1
+              },
+              "right": {
+                "leaf": true,
+                "prob": 0
+              }
+            },
+            "right": {
+              "feature": 2,
+              "threshold": 0.766948,
+              "left": {
+                "feature": 0,
+                "threshold": -0.056009,
+                "left": {
+                  "feature": 0,
+                  "threshold": -0.134294,
+                  "left": {
+                    "feature": 0,
+                    "threshold": -0.174427,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.0769
+                    }
+                  },
+                  "right": {
+                    "feature": 4,
+                    "threshold": 0.771825,
+                    "left": {
+                      "leaf": true,
+                      "prob": 0.1111
+                    },
+                    "right": {
+                      "leaf": true,
+                      "prob": 0.5
+                    }
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 3,
+          "threshold": -0.333931,
+          "left": {
+            "leaf": true,
+            "prob": 0
+          },
+          "right": {
+            "feature": 2,
+            "threshold": -0.096095,
+            "left": {
+              "feature": 4,
+              "threshold": 0.771825,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 0,
+          "threshold": -0.147642,
+          "left": {
+            "feature": 1,
+            "threshold": -0.762952,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 1.528137,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 2,
+            "threshold": -0.368108,
+            "left": {
+              "feature": 3,
+              "threshold": 1.06262,
+              "left": {
+                "feature": 1,
+                "threshold": -1.559269,
+                "left": {
+                  "leaf": true,
+                  "prob": 1
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 0
+                }
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 3,
+      "threshold": 1.06262,
+      "left": {
+        "feature": 2,
+        "threshold": 1.324948,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 0,
+            "threshold": 1.429908,
+            "left": {
+              "feature": 4,
+              "threshold": 0.771825,
+              "left": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 0.131586,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": -0.524057,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 2,
+            "threshold": 1.963155,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 4,
+        "threshold": 0.771825,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 0,
+            "threshold": 0.129549,
+            "left": {
+              "feature": 0,
+              "threshold": -0.129929,
+              "left": {
+                "feature": 2,
+                "threshold": 1.501028,
+                "left": {
+                  "feature": 1,
+                  "threshold": 1.227842,
+                  "left": {
+                    "leaf": true,
+                    "prob": 0
+                  },
+                  "right": {
+                    "leaf": true,
+                    "prob": 1
+                  }
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              },
+              "right": {
+                "feature": 1,
+                "threshold": 1.546369,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 1,
+          "threshold": -0.762952,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 2,
+            "threshold": -0.451344,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "feature": 2,
+      "threshold": 0.759854,
+      "left": {
+        "feature": 3,
+        "threshold": 1.06262,
+        "left": {
+          "feature": 1,
+          "threshold": -1.240742,
+          "left": {
+            "leaf": true,
+            "prob": 1
+          },
+          "right": {
+            "feature": 1,
+            "threshold": 1.546369,
+            "left": {
+              "leaf": true,
+              "prob": 0
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        },
+        "right": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 1,
+            "threshold": -1.240742,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 1,
+              "threshold": 1.546369,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          },
+          "right": {
+            "feature": 2,
+            "threshold": -0.442883,
+            "left": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            },
+            "right": {
+              "leaf": true,
+              "prob": 1
+            }
+          }
+        }
+      },
+      "right": {
+        "feature": 2,
+        "threshold": 1.316582,
+        "left": {
+          "feature": 4,
+          "threshold": 0.771825,
+          "left": {
+            "feature": 1,
+            "threshold": -1.161111,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 5,
+              "threshold": 0.259301,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "feature": 3,
+                "threshold": 1.528137,
+                "left": {
+                  "leaf": true,
+                  "prob": 0
+                },
+                "right": {
+                  "leaf": true,
+                  "prob": 1
+                }
+              }
+            }
+          },
+          "right": {
+            "feature": 1,
+            "threshold": -0.524057,
+            "left": {
+              "leaf": true,
+              "prob": 1
+            },
+            "right": {
+              "feature": 3,
+              "threshold": 0.286759,
+              "left": {
+                "leaf": true,
+                "prob": 0
+              },
+              "right": {
+                "leaf": true,
+                "prob": 1
+              }
+            }
+          }
+        },
+        "right": {
+          "feature": 3,
+          "threshold": -0.333931,
+          "left": {
+            "leaf": true,
+            "prob": 0
+          },
+          "right": {
+            "leaf": true,
+            "prob": 1
+          }
+        }
+      }
+    }
+  ],
+  "n_trees": 20
+}
