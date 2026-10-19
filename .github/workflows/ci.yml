@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Python and Node Test Suites
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install scikit-learn numpy pandas pytest
+
+      - name: Run Python unit & integration tests
+        run: |
+          pytest -v
+
+      - name: Verify real-data benchmark missing-file handling
+        run: |
+          python -c "import subprocess, sys; res = subprocess.run([sys.executable, 'evaluate_real_data.py']); assert res.returncode == 1, f'Expected exit code 1 for missing data file, got {res.returncode}'"
+
+      - name: Run Node.js client-side inference & validation tests
+        run: |
+          node test_frontend.js

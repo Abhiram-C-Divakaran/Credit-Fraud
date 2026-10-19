@@ -2,11 +2,17 @@
  * Credit Card Fraud Detection — Client-Side Inference Engine & UI Controller
  * =========================================================================
  * Evaluates transaction risk using a client-side Random Forest model exported
- * from scikit-learn. No server-side runtime, no API keys, full user privacy.
+ * from scikit-learn. Consumes shared inference and validation logic from core.js.
  */
 
 (function () {
   'use strict';
+
+  // Fallback check for shared core library
+  const Core = window.FraudCore;
+  if (!Core) {
+    console.error('[FraudDetector] FraudCore library not loaded. Ensure core.js is included.');
+  }
 
   // ───────────────────────────────────────────────────────────────────
   // APPLICATION STATE
@@ -78,12 +84,10 @@
       }
       const data = await response.json();
 
-      // Validate schema
-      if (!data.scaler || !data.trees || !Array.isArray(data.trees) || data.trees.length === 0) {
-        throw new Error('Model payload missing required scaler or trees data.');
-      }
-      if (!data.metrics || typeof data.metrics.accuracy !== 'number') {
-        throw new Error('Model payload missing evaluation metrics.');
+      // Validate schema using shared Core
+      const schemaCheck = Core.validateModelSchema(data);
+      if (!schemaCheck.isValid) {
+        throw new Error(`Invalid model structure: ${schemaCheck.error}`);
       }
 
       state.model = data;
@@ -163,46 +167,12 @@
   }
 
   // ───────────────────────────────────────────────────────────────────
-  // INFERENCE ENGINE: TREE TRAVERSAL & STANDARDIZATION
+  // FORM INPUT VALIDATION (Powered by FraudCore)
   // ───────────────────────────────────────────────────────────────────
-  function predictTree(node, scaledFeatures) {
-    if (node.leaf) {
-      return node.prob;
-    }
-    const val = scaledFeatures[node.feature];
-    return val <= node.threshold
-      ? predictTree(node.left, scaledFeatures)
-      : predictTree(node.right, scaledFeatures);
-  }
-
-  function standardize(rawFeatures, scaler) {
-    const { mean, scale } = scaler;
-    return rawFeatures.map((v, i) => (v - mean[i]) / scale[i]);
-  }
-
-  function runInference(rawFeatures) {
-    if (!state.model) {
-      throw new Error('Model is not initialized.');
-    }
-    const scaled = standardize(rawFeatures, state.model.scaler);
-    const treeProbs = state.model.trees.map((tree) => predictTree(tree, scaled));
-    const avgProb = treeProbs.reduce((acc, p) => acc + p, 0) / treeProbs.length;
-    const threshold = (state.model.metadata && state.model.metadata.decision_threshold) || 0.5;
-    return {
-      fraudProbability: avgProb,
-      isFraud: avgProb >= threshold,
-      threshold,
-      treeProbs,
-    };
-  }
-
-  // ───────────────────────────────────────────────────────────────────
-  // FORM INPUT VALIDATION
-  // ───────────────────────────────────────────────────────────────────
-  function validateInput(id, value, rule) {
+  function validateFieldUI(id, value) {
     const input = document.getElementById(id);
     const errorEl = document.getElementById(`${id}-error`);
-    const errorText = rule(value);
+    const errorText = Core.validateField(id, value);
 
     if (errorText) {
       if (input) {
@@ -235,52 +205,20 @@
     const distanceVal = document.getElementById('distance').value.trim();
     const frequencyVal = document.getElementById('frequency').value.trim();
 
-    // Amount validation: required, numeric, >= 0, finite
-    const amountValid = validateInput('amount', amountVal, (val) => {
-      if (val === '') return 'Transaction amount is required.';
-      const num = Number(val);
-      if (Number.isNaN(num) || !Number.isFinite(num)) return 'Enter a valid numeric amount.';
-      if (num < 0) return 'Amount cannot be negative.';
-      if (num > 1000000) return 'Amount exceeds the demo maximum ($1,000,000).';
-      return null;
-    });
-    if (!amountValid && !firstInvalidInput) firstInvalidInput = document.getElementById('amount');
-    isValid = isValid && amountValid;
+    const fields = [
+      { id: 'amount', val: amountVal },
+      { id: 'hour', val: hourVal },
+      { id: 'distance', val: distanceVal },
+      { id: 'frequency', val: frequencyVal },
+    ];
 
-    // Hour validation: required, integer, 0 <= hour <= 23
-    const hourValid = validateInput('hour', hourVal, (val) => {
-      if (val === '') return 'Hour is required (0–23).';
-      const num = Number(val);
-      if (!Number.isInteger(num)) return 'Hour must be a whole integer.';
-      if (num < 0 || num > 23) return 'Hour must be between 0 and 23.';
-      return null;
-    });
-    if (!hourValid && !firstInvalidInput) firstInvalidInput = document.getElementById('hour');
-    isValid = isValid && hourValid;
-
-    // Distance validation: required, numeric, >= 0
-    const distanceValid = validateInput('distance', distanceVal, (val) => {
-      if (val === '') return 'Distance is required.';
-      const num = Number(val);
-      if (Number.isNaN(num) || !Number.isFinite(num)) return 'Enter a valid distance in km.';
-      if (num < 0) return 'Distance cannot be negative.';
-      if (num > 40000) return 'Distance exceeds Earth circumference.';
-      return null;
-    });
-    if (!distanceValid && !firstInvalidInput) firstInvalidInput = document.getElementById('distance');
-    isValid = isValid && distanceValid;
-
-    // Frequency validation: required, integer, >= 0
-    const freqValid = validateInput('frequency', frequencyVal, (val) => {
-      if (val === '') return 'Frequency is required.';
-      const num = Number(val);
-      if (!Number.isInteger(num)) return 'Frequency must be an integer count.';
-      if (num < 0) return 'Frequency cannot be negative.';
-      if (num > 1000) return 'Frequency count is unrealistically high.';
-      return null;
-    });
-    if (!freqValid && !firstInvalidInput) firstInvalidInput = document.getElementById('frequency');
-    isValid = isValid && freqValid;
+    for (const f of fields) {
+      const valid = validateFieldUI(f.id, f.val);
+      if (!valid && !firstInvalidInput) {
+        firstInvalidInput = document.getElementById(f.id);
+      }
+      isValid = isValid && valid;
+    }
 
     if (!isValid && firstInvalidInput) {
       firstInvalidInput.focus();
@@ -289,7 +227,6 @@
     return isValid;
   }
 
-  // Clear validation error on field input
   function attachFieldListeners() {
     ['amount', 'hour', 'distance', 'frequency'].forEach((id) => {
       const input = document.getElementById(id);
@@ -337,7 +274,7 @@
   }
 
   // ───────────────────────────────────────────────────────────────────
-  // RUN DETECTION & UPDATE UI
+  // RUN DETECTION & UPDATE UI (Powered by FraudCore)
   // ───────────────────────────────────────────────────────────────────
   function runDetection() {
     if (!state.model) {
@@ -357,7 +294,7 @@
     const online = state.online;
 
     const rawFeatures = [amount, hour, distance, frequency, foreign, online];
-    const { fraudProbability, isFraud } = runInference(rawFeatures);
+    const { fraudProbability, isFraud } = Core.runInference(rawFeatures, state.model);
     const fraudPct = (fraudProbability * 100).toFixed(1);
 
     // Update Result Panel
@@ -471,7 +408,7 @@
     setToggle('foreign', p.foreign === 1);
     setToggle('online', p.online === 1);
 
-    // Clear any previous validation errors
+    // Clear previous validation errors
     ['amount', 'hour', 'distance', 'frequency'].forEach((id) => {
       const input = document.getElementById(id);
       const err = document.getElementById(`${id}-error`);
@@ -533,8 +470,6 @@
     showDetection,
     showLanding,
     toggleTheme,
-    runInference,
-    standardize,
     validateAllInputs,
   };
 

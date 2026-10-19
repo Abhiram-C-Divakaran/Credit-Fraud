@@ -17,6 +17,13 @@ env/
 venv/
 ENV/
 
+# Datasets (never commit real cardholder data or raw transactions)
+data/
+*.csv
+*.tsv
+*.zip
+*.tar.gz
+
 # IDE & OS
 .vscode/
 .idea/

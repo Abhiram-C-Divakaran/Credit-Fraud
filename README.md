@@ -1,168 +1,167 @@
-# 🛡️ Credit Card Fraud Detection — Client-Side Machine Learning Prototype
+# 🛡️ Credit Card Fraud Detection — Machine Learning System & Benchmark
 
-> **Educational Demonstration Notice**  
-> This repository is an educational prototype demonstrating client-side machine learning inference. The model is trained on synthetic transaction data to illustrate how standard scaling and Random Forest decision tree ensembles can execute entirely in the browser.  
-> **The outputs are illustrative demonstration risk scores, not calibrated real-world probabilities of financial fraud.**
+[![CI](https://github.com/Abhiram-C-Divakaran/Credit-Fraud/actions/workflows/ci.yml/badge.svg)](https://github.com/Abhiram-C-Divakaran/Credit-Fraud/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
----
-
-## 📌 Overview
-
-Traditional machine learning deployments rely on cloud servers, REST APIs, and microservices to run inference. This project showcases an alternative **zero-server architecture**:
-1. **Model Training & Export (`fraud.py`)**: A Random Forest classifier is trained in Python using scikit-learn on standardized transaction features. The exact 20 trained decision trees and StandardScaler coefficients are exported into a portable, structured `model.json`.
-2. **Client-Side Browser Inference (`app.js`)**: The browser downloads `model.json`, normalizes user input with the saved scaling parameters, traverses each decision tree client-side, and averages tree probabilities in milliseconds.
-3. **Full Privacy & Zero Latency**: No card details or transaction figures are sent to any remote server. Everything executes locally in the user's browser sandbox.
+> **Important Architecture Distinction**  
+> This repository contains two distinct components:
+> 1. **Default Application — Interactive Browser Demo**: A zero-server, client-side web application running a 20-tree Random Forest model on 6 intuitive behavioral signals (Amount, Hour, Distance, Frequency, Foreign, Online) trained on synthetic data for educational exploration.
+> 2. **Offline Benchmark Pipeline (`evaluate_real_data.py`)**: A separate, leakage-conscious evaluation script that benchmarks baseline and Random Forest models on the real-world Kaggle/ULB credit card dataset (28 anonymized PCA features `V1`–`V28`, plus `Time` and `Amount`).
 
 ---
 
-## 📁 Repository Structure
+## 📌 Repository Structure
 
 ```text
-├── fraud.py            # Python training script, evaluation & model.json export
-├── model.json          # Exported Random Forest (scaler, 20 decision trees, metrics)
-├── index.html          # Semantic, accessible HTML5 dashboard structure
-├── styles.css          # CSS tokens, light/dark themes, responsive grid, animations
-├── app.js              # Client-side inference engine, validation, & UI controller
-├── run.bat             # Windows one-click local server and browser launcher
-├── test_model.py       # Pytest suite (data leakage, parity, schema, reproducibility)
-├── test_frontend.js    # Node.js test suite (tree traversal, presets, validation)
-└── README.md           # Project documentation and engineering guide
+├── fraud.py                 # Training & JSON export for browser demo model
+├── model.json               # Exported 20-tree Random Forest & scaler for browser inference
+├── core.js                  # Shared JavaScript module (validation, scaling, tree inference)
+├── app.js                   # Client-side UI controller & state management
+├── index.html               # Semantic, accessible HTML5 dashboard structure
+├── styles.css               # Design system with dark/light modes & responsive grid
+├── run.bat                  # Windows one-click local server and browser launcher
+│
+├── evaluate_real_data.py    # Offline benchmark pipeline for Kaggle/ULB dataset
+├── test_model.py            # Pytest suite for synthetic model integrity & parity
+├── test_real_data.py        # Pytest suite for real-data benchmark pipeline
+├── test_frontend.js         # Node.js test suite for shared core.js module
+│
+├── .github/workflows/ci.yml # Continuous Integration (pytest + node tests)
+├── LICENSE                  # MIT License
+├── .gitignore               # Excludes python artifacts, test caches, and raw data
+└── README.md                # System documentation
 ```
 
 ---
 
-## 📊 Features & Behavioral Signals
+## 🌐 Part 1: Interactive Browser Demo (Default App)
 
-The demonstration model processes 6 transaction features:
+### How It Works
+Traditional ML deployments rely on server-side APIs that introduce network latency, API costs, and data privacy risks. This demo runs **100% client-side**:
+- User enters transaction parameters.
+- [core.js](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/core.js) standardizes inputs using precomputed `scaler.mean` and `scaler.scale`.
+- The browser traverses 20 pruned decision trees in [model.json](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/model.json) and averages their class probabilities.
+- Risk scores, probability meters, and transaction history update instantaneously without sending data to any external server.
 
-| Feature Name | Key | Unit | Description | Typical Legitimate Profile | Suspicious Indicators |
+### Features & Behavioral Signals
+
+| Feature Name | Key | Unit | Description | Typical Normal Spend | Suspicious Indicator |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Amount** | `amount` | USD ($) | Total monetary charge value | Median ~$50–$150 | High value (>$1,500) or micro-amounts ($1–$5 test charges) |
-| **Hour of Day** | `hour` | 0–23 | Local hour of transaction (0 = midnight) | Normal daytime (07:00–22:00) | Late night / early morning (00:00–05:00) |
-| **Distance** | `distance` | km | Distance from cardholder primary residence | Local spend (< 30 km) | Large distance (> 200 km) without travel notice |
-| **Txn Frequency** | `frequency` | count | Transactions recorded within the current hour | 1–3 transactions/hour | Rapid transaction bursts (> 8 transactions/hour) |
-| **Foreign Txn** | `foreign` | Binary (0/1) | Cross-border transaction flag | Domestic (0) | Unexpected foreign billing location (1) |
-| **Online Txn** | `online` | Binary (0/1) | Card-not-present e-commerce flag | Physical card or routine web spend | Uncharacteristic online authorization burst |
+| **Amount** | `amount` | USD ($) | Total transaction purchase value | Moderate spend (~$30–$150) | High spend (>$1,500) or test probes ($1–$5) |
+| **Hour of Day** | `hour` | 0–23 | Hour transaction occurred (0 = midnight) | Normal daytime (07:00–22:00) | Late night / early morning (00:00–05:00) |
+| **Distance** | `distance` | km | Distance from primary residence | Local spend (< 30 km) | Remote distance (> 200 km) without notice |
+| **Txn Frequency** | `frequency` | count | Transactions recorded in the current hour | 1–3 txns/hour | Rapid bursts (> 8 txns/hour) |
+| **Foreign Txn** | `foreign` | Binary | Cross-border transaction indicator | Domestic (0) | Unexpected foreign merchant (1) |
+| **Online Txn** | `online` | Binary | Card-not-present digital transaction | In-store or routine web | Uncharacteristic online authorization burst (1) |
 
----
+### Running the Browser Demo Locally
+Due to browser **CORS restrictions**, `model.json` cannot be fetched via direct `file:///` opening. Start a local HTTP server:
 
-## ⚙️ Model Architecture & Evaluation
-
-- **Algorithm**: Random Forest Classifier (`n_estimators=20`, `max_depth=8`, `class_weight='balanced'`).
-- **Data Splitting**: 80% train (4,000 samples), 20% test (1,000 samples), stratified by class label.
-- **Preprocessing**: `StandardScaler` fit **exclusively** on training data to prevent data leakage.
-- **Parity Guarantee**: The exact 20 trees exported to `model.json` are evaluated on the held-out test set, ensuring the metrics reported in the UI match browser inference.
-
-### Evaluation Metrics (Held-Out Test Set)
-
-| Metric | Score | Note |
-| :--- | :--- | :--- |
-| **Test Accuracy** | **97.10%** | Overall correct classifications on test split |
-| **Fraud Precision** | **87.58%** | Ratio of true frauds among all transactions flagged as fraud |
-| **Fraud Recall** | **94.00%** | Percentage of actual frauds caught by the model |
-| **F1-Score** | **90.68%** | Harmonic mean of precision and recall |
-| **ROC-AUC** | **0.9792** | Area under the Receiver Operating Characteristic curve |
-
-> *Confusion Matrix on 1,000 Test Samples (850 Legitimate, 150 Fraudulent):*
-> - **True Negatives (Safe correctly identified)**: 830
-> - **False Positives (False alarms)**: 20
-> - **False Negatives (Missed frauds)**: 9
-> - **True Positives (Frauds caught)**: 141
-
----
-
-## ⚠️ Synthetic Data & Real-World Limitations
-
-1. **Synthetic Feature Separation**: The training script generates synthetic distributions where fraudulent transactions have higher probabilities of night hours, elevated frequencies, and cross-border locations. While realistic overlap and noise are injected, real-world credit card data is significantly more complex.
-2. **Extreme Class Imbalance**: In production banking telemetry, fraud prevalence is typically **0.1% to 0.2%** (1 in 1,000 transactions), not the 15% ratio used here. Production models optimize Precision-Recall AUC (PR-AUC) rather than raw accuracy.
-3. **Adversarial Adaptation & Concept Drift**: Fraud syndicates continuously alter spend amounts, payment gateways, and geolocation cloaking to bypass fixed rule sets. Real production systems require continuous online learning, anomaly detection, velocity counters, and device fingerprinting.
-
----
-
-## 🛠️ Setup & Local Development
-
-### 1. Prerequisites
-- **Python 3.9+** (for training and evaluation)
-- **Node.js 18+** (optional, for frontend automated tests)
-- Any modern web browser (Chrome, Edge, Firefox, Safari)
-
-### 2. Install Python Dependencies
 ```bash
-pip install scikit-learn numpy pandas pytest
-```
+# Option A: Windows shortcut
+double-click run.bat
 
-### 3. Retrain and Export Model
-To generate synthetic data, train the Random Forest, verify parity, and export `model.json`:
-```bash
-python fraud.py
-```
-
-### 4. Run Automated Tests
-Run both the Python model test suite and the Node frontend verification suite:
-```bash
-# Run Python model integrity & schema tests
-pytest -v test_model.py
-
-# Run JavaScript inference & input validation tests
-node test_frontend.js
-```
-
-### 5. Launch the Web Application
-Because modern browsers enforce **CORS (Cross-Origin Resource Sharing)** restrictions on the `file:///` protocol, `model.json` cannot be fetched via direct double-click on `index.html`. You must run a lightweight HTTP server.
-
-**Option A — Windows Shortcut:**
-Double-click `run.bat` in the project root. It will start a local server at `http://localhost:5500/` and open your default browser automatically.
-
-**Option B — Python HTTP Server:**
-```bash
+# Option B: Python HTTP server
 python -m http.server 5500
-```
-Then navigate to [http://localhost:5500](http://localhost:5500) in your web browser.
 
-**Option C — Node.js npx:**
-```bash
+# Option C: Node npx
 npx serve .
 ```
+Then open [http://localhost:5500](http://localhost:5500) in your browser.
 
 ---
 
-## 🌐 Deploying as a Static Website
+## 🔬 Part 2: Real-World Benchmark Pipeline (`evaluate_real_data.py`)
 
-Because the application requires no backend server or database, it can be deployed for free to any static hosting provider:
+The offline benchmark evaluates models against the real-world **Kaggle / ULB Machine Learning Group** credit card fraud dataset.
 
-### Deploying to GitHub Pages
-1. Push this repository to GitHub.
-2. Go to **Settings** > **Pages** in your repository.
-3. Under **Branch**, select `main` (or `master`) and folder `/ (root)`.
-4. Click **Save**. Within a minute, your detector will be live at `https://<username>.github.io/<repository-name>/`.
+### Why It Is Kept Separate from the Browser Demo
+1. **PCA Features vs Semantic Inputs**: The Kaggle dataset features `V1`–`V28` are anonymized principal components resulting from PCA transformation (to protect cardholder confidentiality). They do not correspond to the interactive demo's intuitive inputs (`distance`, `frequency`, `hour`).
+2. **Class Imbalance Realities**: The real dataset contains **492 frauds among 284,807 transactions (0.172%)**. Production models must optimize Precision-Recall AUC (PR-AUC) rather than raw accuracy.
 
----
+### Setup Instructions
 
-## 🔬 Integrating a Real-World Dataset
+1. **Download the Dataset**:
+   Download `creditcard.csv` from Kaggle:  
+   🔗 [Kaggle / ULB Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
 
-To adapt this codebase to a real-world dataset (such as the [Kaggle / ULB Machine Learning Group Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)):
-
-1. **Obtain Data**: Download `creditcard.csv` (contains 284,807 European cardholder transactions with PCA components `V1`–`V28`, `Time`, `Amount`, and `Class`).
-2. **Update Feature Extraction in `fraud.py`**:
-   ```python
-   import pandas as pd
-   df = pd.read_csv("creditcard.csv")
-   X = df[["Amount", "Time", "V1", "V2", "V3", "V4"]].values # Select salient features
-   y = df["Class"].values
+2. **Place in the Data Folder**:
+   Create a `data/` directory and place `creditcard.csv` inside:
+   ```bash
+   mkdir data
+   # Place creditcard.csv at: data/creditcard.csv
    ```
-3. **Address 0.17% Class Imbalance**:
-   - Use `class_weight='balanced_subsample'`.
-   - Evaluate using `average_precision_score` (PR-AUC) and set the classification threshold via ROC / PR curve analysis rather than a default `0.5`.
-4. **Update `FEATURE_SPECS`**: Ensure `FEATURE_SPECS` in `fraud.py` matches the names and indices of the selected columns so the exported `model.json` schema remains aligned with `app.js`.
+   *(Note: `data/` and `*.csv` are excluded by `.gitignore` to prevent committing raw data).*
+
+3. **Run the Benchmark**:
+   ```bash
+   # Standard benchmark (100-tree Random Forest + Baseline Logistic Regression)
+   python evaluate_real_data.py
+
+   # Quick sanity run (fast mode)
+   python evaluate_real_data.py --fast
+   ```
+
+### Evaluation Methodology & Leakage Prevention
+
+- **Chronological Split by Time**: Transactions are ordered by the `Time` column:
+  - **60% Train** (earliest transactions)
+  - **20% Validation** (intermediate transactions)
+  - **20% Test** (latest unseen transactions)
+  *Rationale: Random cross-validation in temporal fraud datasets creates massive look-ahead data leakage because fraud campaigns occur in clustered time bursts. A chronological split reflects real operational deployment.*
+- **Strict Preprocessing Isolation**: `RobustScaler` is fitted **strictly** on training data (`X_train`) and applied downstream to validation and test sets.
+- **Validation-Tuned Decision Threshold**: Rather than assuming an arbitrary `0.5` cutoff, decision thresholds are selected on the validation set to optimize the precision-recall trade-off before final evaluation on the untouched test split.
+- **Report Generation**: Outputs are saved to:
+  - `reports/real_data_evaluation.json` (machine-readable metrics and metadata)
+  - `reports/real_data_evaluation.md` (formatted markdown summary)
+
+### Benchmark Metrics Tracked
+- **PR-AUC (Average Precision)**: Primary metric for severe class imbalance.
+- **ROC-AUC**: Evaluates ranking across all discrimination thresholds.
+- **Precision, Recall, F1-Score**: Evaluated at standard (0.50) and validation-tuned thresholds.
+- **False Positive Rate (FPR)**: Critical for measuring customer friction / false alarms.
+- **Confusion Matrix**: Full breakdown of TP, FP, TN, FN.
 
 ---
 
-## 🔒 Privacy & Data Ethics
+## 🧪 Testing & Verification
 
-- **Zero Data Collection**: No transaction inputs, amounts, locations, or identifiers are logged to any external server or third-party analytics tool.
-- **Fictional Visuals**: All credit card visuals shown in the interface use specimen card numbers (`•••• •••• •••• 4096`) and dummy names (`DEMO SPECIMEN`) to adhere to security best practices.
+The repository includes test suites for both Python and Node.js environments:
+
+```bash
+# 1. Run Python unit and integration tests (synthetic model + real benchmark pipeline)
+pytest -v
+
+# 2. Run Node.js client-side inference and validation tests
+node test_frontend.js
+
+# 3. Test real-data missing-file handling
+python evaluate_real_data.py
+```
+
+All tests run in headless environments and do **not** require the optional private Kaggle dataset.
+
+---
+
+## ⚙️ Continuous Integration
+
+A GitHub Actions workflow is configured at [.github/workflows/ci.yml](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/.github/workflows/ci.yml). On every push and pull request to `main`:
+1. Sets up Python 3.11 and Node.js 20.
+2. Installs required Python dependencies (`scikit-learn`, `numpy`, `pandas`, `pytest`).
+3. Executes `pytest -v` across all test suites.
+4. Executes `node test_frontend.js` using the shared [core.js](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/core.js) engine.
+5. Verifies graceful missing-dataset handling in [evaluate_real_data.py](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/evaluate_real_data.py).
+
+---
+
+## ⚠️ Real-World Deployment Limitations
+
+1. **Dataset Scope**: The Kaggle/ULB dataset consists of European cardholder transactions across a single 2-day period in September 2013. Model metrics obtained on this dataset do not guarantee performance on modern transactions or other geographical regions.
+2. **Adversarial Evolution & Concept Drift**: Fraud rings continuously adapt payment routing, card testing velocities, and proxy evasion techniques. Static models require automated drift monitoring, retrain schedules, and integration with real-time velocity engines.
+3. **Multi-Factor Context**: Production fraud systems combine machine learning scores with device fingerprinting, behavioral biometrics, 3D-Secure (3DS) challenges, and IP consortium intelligence.
 
 ---
 
 ## 📄 License
-This project is open-source under the MIT License.
+
+This project is licensed under the [MIT License](LICENSE).
