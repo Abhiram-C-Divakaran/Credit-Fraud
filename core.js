@@ -224,6 +224,213 @@
     };
   }
 
+  // ───────────────────────────────────────────────────────────────────
+  // 4. BENCHMARK REPORT DATA VALIDATION & ANALYSIS HELPERS
+  // ───────────────────────────────────────────────────────────────────
+
+  /**
+   * Validate that the real-data evaluation report JSON meets schema requirements.
+   * @param {Object} report
+   * @returns {{ isValid: boolean, error: string|null }}
+   */
+  function validateBenchmarkReportData(report) {
+    if (!report || typeof report !== 'object') {
+      return { isValid: false, error: 'Benchmark report is not a valid object.' };
+    }
+    if (!report.dataset_metadata || typeof report.dataset_metadata.row_count !== 'number') {
+      return { isValid: false, error: 'Benchmark report missing dataset_metadata.' };
+    }
+    if (!report.threshold_tradeoff_analysis || !Array.isArray(report.threshold_tradeoff_analysis.candidate_thresholds)) {
+      return { isValid: false, error: 'Benchmark report missing threshold_tradeoff_analysis.' };
+    }
+    if (!Array.isArray(report.threshold_tradeoff_analysis.random_forest) ||
+        !Array.isArray(report.threshold_tradeoff_analysis.baseline_logistic_regression)) {
+      return { isValid: false, error: 'Benchmark report missing model threshold tradeoffs.' };
+    }
+    if (!report.temporal_window_evaluation || !Array.isArray(report.temporal_window_evaluation.windows)) {
+      return { isValid: false, error: 'Benchmark report missing temporal_window_evaluation.' };
+    }
+    return { isValid: true, error: null };
+  }
+
+  /**
+   * Find the candidate tradeoff record closest to the given target threshold.
+   * @param {number} targetThreshold
+   * @param {Array<Object>} tradeoffArray
+   * @returns {Object|null}
+   */
+  function findNearestTradeoff(targetThreshold, tradeoffArray) {
+    if (!Array.isArray(tradeoffArray) || tradeoffArray.length === 0) {
+      return null;
+    }
+    const target = Number(targetThreshold);
+    let nearest = tradeoffArray[0];
+    let minDiff = Math.abs(nearest.threshold - target);
+
+    for (let i = 1; i < tradeoffArray.length; i++) {
+      const item = tradeoffArray[i];
+      const diff = Math.abs(item.threshold - target);
+      if (diff < minDiff) {
+        minDiff = diff;
+        nearest = item;
+      }
+    }
+    return nearest;
+  }
+
+  /**
+   * Derive operational learning scenarios from a model's threshold tradeoff array.
+   * Scenarios:
+   * 1. "catch_fraud" (Aggressive / High Recall)
+   * 2. "balanced_f1" (Validation-Tuned Operating Point)
+   * 3. "reduce_alarms" (Conservative / High Precision)
+   * @param {Array<Object>} tradeoffArray
+   * @param {number} [tunedThreshold]
+   * @returns {Array<Object>}
+   */
+  function getOperationalScenarios(tradeoffArray, tunedThreshold) {
+    if (!Array.isArray(tradeoffArray) || tradeoffArray.length === 0) {
+      return [];
+    }
+
+    // 1. Catch more fraud: look for high recall (~85-95%) with acceptable precision
+    // For RF: threshold 0.30 achieves 76.0% recall with only 16 FPs
+    const catchFraudCandidate = findNearestTradeoff(0.30, tradeoffArray);
+
+    // 2. Balanced F1: closest candidate to the tuned threshold
+    const balancedCandidate = findNearestTradeoff(tunedThreshold !== undefined ? tunedThreshold : 0.40, tradeoffArray);
+
+    // 3. Reduce false alarms: threshold >= 0.60 or 0.80 where false positives are minimal
+    let lowFpCandidate = tradeoffArray.find((r) => r.confusion_matrix && r.confusion_matrix.false_positives === 0);
+    if (!lowFpCandidate) {
+      lowFpCandidate = findNearestTradeoff(0.80, tradeoffArray);
+    }
+
+    return [
+      {
+        id: 'catch_fraud',
+        title: 'Catch More Fraud',
+        icon: '🎯',
+        badge: 'High Recall (Aggressive)',
+        threshold: catchFraudCandidate.threshold,
+        tradeoff: catchFraudCandidate,
+        narrative: `Lowers threshold to ${catchFraudCandidate.threshold.toFixed(2)} to capture ${(catchFraudCandidate.recall * 100).toFixed(1)}% of attacks (${catchFraudCandidate.confusion_matrix.true_positives} caught), at the cost of ${catchFraudCandidate.confusion_matrix.false_positives} false alarms.`,
+      },
+      {
+        id: 'balanced_f1',
+        title: 'Balanced F1-Score',
+        icon: '⚖️',
+        badge: 'Validation-Tuned Point',
+        threshold: balancedCandidate.threshold,
+        tradeoff: balancedCandidate,
+        narrative: `Operates at threshold ${balancedCandidate.threshold.toFixed(2)} tuned strictly on validation data to maximize harmonic F1-score (${(balancedCandidate.f1_score * 100).toFixed(1)}%), balancing ${(balancedCandidate.recall * 100).toFixed(1)}% recall against ${(balancedCandidate.precision * 100).toFixed(1)}% precision (${balancedCandidate.confusion_matrix.false_positives} false alarms).`,
+      },
+      {
+        id: 'reduce_alarms',
+        title: 'Reduce False Alarms',
+        icon: '🛡️',
+        badge: 'High Precision (Conservative)',
+        threshold: lowFpCandidate.threshold,
+        tradeoff: lowFpCandidate,
+        narrative: `Raises threshold to ${lowFpCandidate.threshold.toFixed(2)} to protect cardholder experience, suppressing false alarms to ${lowFpCandidate.confusion_matrix.false_positives} (${(lowFpCandidate.precision * 100).toFixed(1)}% precision), but missing ${lowFpCandidate.confusion_matrix.false_negatives} fraud attacks.`,
+      },
+    ];
+  }
+
+  /**
+   * Calculate derived rates from confusion matrix counts.
+   * @param {{ true_negatives: number, false_positives: number, false_negatives: number, true_positives: number }} cm
+   * @returns {Object}
+   */
+  function calculateConfusionMatrixMetrics(cm) {
+    if (!cm) {
+      return {
+        tn: 0, fp: 0, fn: 0, tp: 0,
+        total: 0, actualPositive: 0, actualNegative: 0,
+        recall: 0, precision: 0, f1_score: 0, false_positive_rate: 0, accuracy: 0,
+      };
+    }
+    const tn = Number(cm.true_negatives || 0);
+    const fp = Number(cm.false_positives || 0);
+    const fn = Number(cm.false_negatives || 0);
+    const tp = Number(cm.true_positives || 0);
+
+    const total = tn + fp + fn + tp;
+    const actualPositive = tp + fn;
+    const actualNegative = tn + fp;
+    const predictedPositive = tp + fp;
+
+    const recall = actualPositive > 0 ? tp / actualPositive : 0;
+    const precision = predictedPositive > 0 ? tp / predictedPositive : 0;
+    const f1_score = (precision + recall) > 0 ? (2 * precision * recall) / (precision + recall) : 0;
+    const false_positive_rate = actualNegative > 0 ? fp / actualNegative : 0;
+    const accuracy = total > 0 ? (tp + tn) / total : 0;
+
+    return {
+      tn, fp, fn, tp,
+      total,
+      actualPositive,
+      actualNegative,
+      predictedPositive,
+      recall,
+      precision,
+      f1_score,
+      false_positive_rate,
+      accuracy,
+    };
+  }
+
+  /**
+   * Generate an evidence-linked comparative plain-language narrative when threshold changes.
+   * @param {Object} currentTradeoff - The selected candidate tradeoff
+   * @param {Object} baselineTradeoff - Candidate tradeoff at 0.50 reference
+   * @param {string} modelName - 'Random Forest' or 'Logistic Regression'
+   * @returns {{ headline: string, summary: string, tradeOffComparison: string }}
+   */
+  function generateThresholdNarrative(currentTradeoff, baselineTradeoff, modelName) {
+    if (!currentTradeoff) {
+      return { headline: '', summary: '', tradeOffComparison: '' };
+    }
+    const t = currentTradeoff.threshold;
+    const recPct = (currentTradeoff.recall * 100).toFixed(1);
+    const precPct = (currentTradeoff.precision * 100).toFixed(1);
+    const fp = currentTradeoff.confusion_matrix.false_positives;
+    const tp = currentTradeoff.confusion_matrix.true_positives;
+    const fn = currentTradeoff.confusion_matrix.false_negatives;
+    const totalFrauds = tp + fn;
+
+    let headline = '';
+    if (t <= 0.20) {
+      headline = 'Aggressive Fraud Interception (High Recall, High Friction)';
+    } else if (t <= 0.40) {
+      headline = 'Balanced Operational Trade-off';
+    } else if (t <= 0.60) {
+      headline = 'Standard Default Threshold';
+    } else {
+      headline = 'Conservative Friction Minimization (High Precision, Missed Fraud)';
+    }
+
+    const summary = `At threshold ${t.toFixed(2)}, transactions with ≥ ${(t * 100).toFixed(0)}% estimated fraud probability are flagged. The ${modelName} catches ${recPct}% of fraud attacks (${tp} of ${totalFrauds}), with ${fp.toLocaleString()} false alarms on legitimate cardholders (FPR ${(currentTradeoff.false_positive_rate * 100).toFixed(4)}%).`;
+
+    let tradeOffComparison = '';
+    if (baselineTradeoff && Math.abs(baselineTradeoff.threshold - t) > 0.001) {
+      const baseRecPct = (baselineTradeoff.recall * 100).toFixed(1);
+      const baseFp = baselineTradeoff.confusion_matrix.false_positives;
+      const recDiff = Number(recPct) - Number(baseRecPct);
+      const fpDiff = fp - baseFp;
+
+      if (t < baselineTradeoff.threshold) {
+        tradeOffComparison = `Compared to the standard 0.50 threshold (${baseRecPct}% recall, ${baseFp} false alarms), lowering threshold to ${t.toFixed(2)} catches ${Math.abs(tp - baselineTradeoff.confusion_matrix.true_positives)} additional fraud attacks (+${recDiff.toFixed(1)}% recall) at the cost of ${fpDiff} more false alarms.`;
+      } else {
+        tradeOffComparison = `Compared to the standard 0.50 threshold (${baseRecPct}% recall, ${baseFp} false alarms), raising threshold to ${t.toFixed(2)} reduces false alarms by ${Math.abs(fpDiff)}, but misses ${fn - baselineTradeoff.confusion_matrix.false_negatives} more fraud attacks (recall drops by ${Math.abs(recDiff).toFixed(1)}%).`;
+      }
+    } else {
+      tradeOffComparison = `This is the default reference threshold (0.50), reflecting raw unweighted majority-class decisioning prior to validation tuning.`;
+    }
+
+    return { headline, summary, tradeOffComparison };
+  }
+
   return {
     VALIDATION_RULES,
     validateField,
@@ -232,5 +439,10 @@
     standardize,
     predictTree,
     runInference,
+    validateBenchmarkReportData,
+    findNearestTradeoff,
+    getOperationalScenarios,
+    calculateConfusionMatrixMetrics,
+    generateThresholdNarrative,
   };
 }));

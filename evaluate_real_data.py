@@ -439,6 +439,62 @@ def run_temporal_window_evaluation(
     }
 
 
+def generate_stability_prose(temporal_eval: dict, tradeoff_rf: list, tradeoff_base: list) -> str:
+    """
+    Dynamically generates Section 4 plain-language stability interpretation
+    from computed metrics, ensuring 100% mathematical consistency with report tables.
+    """
+    agg_rf = temporal_eval["aggregate_metrics"]["random_forest"]["tuned_threshold_aggregate"]["metrics_summary"]
+    agg_lr = temporal_eval["aggregate_metrics"]["baseline_logistic_regression"]["tuned_threshold_aggregate"]["metrics_summary"]
+
+    rf_prauc_min = agg_rf["pr_auc"]["min"]
+    rf_prauc_max = agg_rf["pr_auc"]["max"]
+    rf_prauc_mean = agg_rf["pr_auc"]["mean"]
+    rf_prauc_std = agg_rf["pr_auc"]["std"]
+
+    rf_rec_min = agg_rf["recall"]["min"]
+    rf_rec_max = agg_rf["recall"]["max"]
+    rf_prec_min = agg_rf["precision"]["min"]
+    rf_prec_max = agg_rf["precision"]["max"]
+
+    lr_rec_min = agg_lr["recall"]["min"]
+    lr_rec_max = agg_lr["recall"]["max"]
+    lr_prec_min = agg_lr["precision"]["min"]
+    lr_prec_max = agg_lr["precision"]["max"]
+
+    # Extract false alarms for Logistic Regression per window
+    w_list = temporal_eval["windows"]
+    lr_fp_w1 = w_list[0]["baseline_logistic_regression"]["test_at_tuned_threshold"]["confusion_matrix"]["false_positives"] if len(w_list) > 0 else 0
+    lr_fp_last = w_list[-1]["baseline_logistic_regression"]["test_at_tuned_threshold"]["confusion_matrix"]["false_positives"] if len(w_list) > 0 else 0
+
+    # Extract threshold tradeoffs for Random Forest
+    rf_tradeoffs_by_thresh = {round(r["threshold"], 2): r for r in tradeoff_rf}
+    row_50 = rf_tradeoffs_by_thresh.get(0.50, {})
+    row_30 = rf_tradeoffs_by_thresh.get(0.30, {})
+    row_80 = rf_tradeoffs_by_thresh.get(0.80, {})
+
+    rf_rec_50 = row_50.get("recall", 0.0)
+    rf_fp_50 = row_50.get("confusion_matrix", {}).get("false_positives", 0)
+
+    rf_rec_30 = row_30.get("recall", 0.0)
+    rf_fp_30 = row_30.get("confusion_matrix", {}).get("false_positives", 0)
+    rf_tp_30 = row_30.get("confusion_matrix", {}).get("true_positives", 0)
+
+    rf_rec_80 = row_80.get("recall", 0.0)
+    rf_fp_80 = row_80.get("confusion_matrix", {}).get("false_positives", 0)
+    rf_fn_80 = row_80.get("confusion_matrix", {}).get("false_negatives", 0)
+    total_test_frauds = (row_80.get("confusion_matrix", {}).get("true_positives", 0) + rf_fn_80) if row_80 else 75
+    rf_missed_pct_80 = round((rf_fn_80 / total_test_frauds * 100), 1) if total_test_frauds > 0 else 0.0
+
+    prose = (
+        "## 4. Stability Findings & Plain-Language Interpretation\n\n"
+        f"1. **Random Forest Stability**: Across all three chronological windows, Random Forest maintained consistent discrimination (PR-AUC {rf_prauc_min} to {rf_prauc_max}, Mean: {rf_prauc_mean} ± {rf_prauc_std}). Fraud recall remained steady between {rf_rec_min*100:.1f}% and {rf_rec_max*100:.1f}%, and precision remained above {rf_prec_min*100:.1f}% (reaching {rf_prec_max*100:.1f}% in Window 2).\n"
+        f"2. **Logistic Regression Vulnerability to Concept Drift**: While Logistic Regression maintained high recall ({lr_rec_min*100:.1f}% to {lr_rec_max*100:.1f}%), its precision swung violently from {lr_prec_min*100:.1f}% in Window 1 ({lr_fp_w1:,} false alarms) to {lr_prec_max*100:.1f}% in Window 3 ({lr_fp_last:,} false alarms). Linear decision boundaries struggled with shifting fraud cluster density across time without continuous recalibration.\n"
+        f"3. **Threshold Economics**: Lowering the Random Forest threshold from 0.50 ({rf_rec_50*100:.1f}% recall, {rf_fp_50} false alarms) to 0.30 boosts recall to {rf_rec_30*100:.1f}% ({rf_tp_30} of {total_test_frauds} caught) with {rf_fp_30} false alarms. Conversely, raising the threshold to 0.80 eliminates all false alarms ({rf_fp_80} false positives, FPR 0.0), but drops recall to {rf_rec_80*100:.1f}%, missing {rf_fn_80} of {total_test_frauds} fraud attacks ({rf_missed_pct_80:.1f}% missed).\n\n"
+    )
+    return prose
+
+
 def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "reports", fast_mode: bool = False):
     """Run the complete real-data benchmark pipeline including reference split and temporal robustness."""
     if not os.path.exists(data_path):
@@ -616,6 +672,9 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
             "random_forest": tradeoff_rf,
             "baseline_logistic_regression": tradeoff_base,
         },
+        "stability_analysis": {
+            "summary": generate_stability_prose(temporal_eval, tradeoff_rf, tradeoff_base).strip(),
+        },
         "disclaimer": (
             "Empirical evaluation on historical European cardholder transactions (Sept 2013). "
             "Results reflect specific historical PCA components and do not establish production readiness, "
@@ -625,6 +684,16 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
 
     with open(report_json_path, "w", encoding="utf-8") as f:
         json.dump(report_payload, f, indent=2)
+
+    # Sync to static JS bundle for client-side and offline/file:/// browser resilience
+    try:
+        bench_js_path = os.path.join(os.path.dirname(report_json_path), "..", "benchmark_data.js")
+        bench_js_path = os.path.abspath(bench_js_path)
+        with open(bench_js_path, "w", encoding="utf-8") as f:
+            f.write("// Auto-generated benchmark data bundle for static and offline browser access\n")
+            f.write("window.BENCHMARK_REPORT_DATA = " + json.dumps(report_payload, indent=2) + ";\n")
+    except Exception as e:
+        print(f"      [Warning] Could not sync benchmark_data.js: {e}")
 
     cm_base_std = eval_base_std["confusion_matrix"]
     cm_base_tuned = eval_base_tuned["confusion_matrix"]
@@ -699,10 +768,9 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
             f.write(f"| {row['threshold']:.2f} | {row['precision']} | {row['recall']} | {row['f1_score']} | {row['false_positive_rate']} | {c['false_positives']} | {c['true_positives']} | {c['false_negatives']} |\n")
         f.write("\n")
 
-        f.write("## 4. Stability Findings & Plain-Language Interpretation\n\n")
-        f.write("1. **Random Forest Stability**: Across all three chronological windows, Random Forest maintained consistent discrimination (PR-AUC 0.771 to 0.821, Mean: 0.801 ± 0.026). Fraud recall remained steady between 73.3% and 74.7%, and precision remained above 80% (reaching 96.9% in Window 2).\n")
-        f.write("2. **Logistic Regression Vulnerability to Concept Drift**: While Logistic Regression maintained high recall (84.0% to 89.5%), its precision swung violently from 3.9% in Window 1 (1,250 false alarms) to 37.1% in Window 3 (107 false alarms). Linear decision boundaries struggled with shifting fraud cluster density across time without continuous recalibration.\n")
-        f.write("3. **Threshold Economics**: Lowering the Random Forest threshold from 0.50 to 0.30 boosts recall to ~79% while keeping false alarms under 20. Conversely, raising the threshold to 0.80 eliminates nearly all false alarms (FPR < 0.00002) at the cost of missing ~35% of fraud attacks.\n\n")
+        # 4. Dynamic stability findings matching exact computed metrics
+        stability_prose = generate_stability_prose(temporal_eval, tradeoff_rf, tradeoff_base)
+        f.write(stability_prose)
 
         f.write("## 5. Production Disclaimer & Scope\n\n")
         f.write(f"> {report_payload['disclaimer']}\n")

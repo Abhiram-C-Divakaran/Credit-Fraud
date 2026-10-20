@@ -176,7 +176,132 @@ assert.throws(() => {
   runInference(normalTxn, {});
 }, /Cannot run inference/);
 
-console.log('✓ [5/5] Real model inference tests on normal and suspicious presets passed.');
+console.log('✓ [5/10] Real model inference tests on normal and suspicious presets passed.');
+
+// ─────────────────────────────────────────────────────────────────────
+// 6. Benchmark Report Loading & Schema Validation
+// ─────────────────────────────────────────────────────────────────────
+const {
+  validateBenchmarkReportData,
+  findNearestTradeoff,
+  getOperationalScenarios,
+  calculateConfusionMatrixMetrics,
+  generateThresholdNarrative,
+} = FraudCore;
+
+const reportPath = path.join(__dirname, 'reports', 'real_data_evaluation.json');
+assert.ok(fs.existsSync(reportPath), 'reports/real_data_evaluation.json must exist');
+const benchmarkReport = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+
+const benchValid = validateBenchmarkReportData(benchmarkReport);
+assert.strictEqual(benchValid.isValid, true, `Real benchmark report should be valid: ${benchValid.error}`);
+assert.strictEqual(benchValid.error, null);
+
+// Corrupted benchmark report cases
+assert.strictEqual(validateBenchmarkReportData(null).isValid, false);
+assert.strictEqual(validateBenchmarkReportData({}).isValid, false);
+assert.strictEqual(validateBenchmarkReportData({ dataset_metadata: {} }).isValid, false);
+assert.strictEqual(validateBenchmarkReportData({
+  dataset_metadata: { row_count: 100 },
+  threshold_tradeoff_analysis: {},
+}).isValid, false);
+
+console.log('✓ [6/10] Benchmark report schema validation passed (valid + corrupted).');
+
+// ─────────────────────────────────────────────────────────────────────
+// 7. Benchmark Tradeoff Nearest Neighbor Matching
+// ─────────────────────────────────────────────────────────────────────
+const rfTradeoffs = benchmarkReport.threshold_tradeoff_analysis.random_forest;
+assert.ok(Array.isArray(rfTradeoffs) && rfTradeoffs.length > 0);
+
+// Exact match
+const matchExact = findNearestTradeoff(0.30, rfTradeoffs);
+assert.strictEqual(matchExact.threshold, 0.30);
+assert.strictEqual(matchExact.confusion_matrix.false_positives, 16);
+assert.strictEqual(matchExact.confusion_matrix.true_positives, 57);
+
+// Boundary and interpolation matching
+const matchNearLow = findNearestTradeoff(0.04, rfTradeoffs);
+assert.strictEqual(matchNearLow.threshold, 0.05);
+
+const matchNearMid = findNearestTradeoff(0.38, rfTradeoffs);
+assert.strictEqual(matchNearMid.threshold, 0.40);
+
+const matchNearHigh = findNearestTradeoff(0.99, rfTradeoffs);
+assert.strictEqual(matchNearHigh.threshold, 0.95);
+
+// Empty array guard
+assert.strictEqual(findNearestTradeoff(0.5, []), null);
+
+console.log('✓ [7/10] Benchmark threshold nearest neighbor lookups passed.');
+
+// ─────────────────────────────────────────────────────────────────────
+// 8. Operational Scenarios Generation
+// ─────────────────────────────────────────────────────────────────────
+const rfScenarios = getOperationalScenarios(rfTradeoffs, 0.399);
+assert.strictEqual(rfScenarios.length, 3);
+
+const catchFraud = rfScenarios.find((s) => s.id === 'catch_fraud');
+const balancedF1 = rfScenarios.find((s) => s.id === 'balanced_f1');
+const reduceAlarms = rfScenarios.find((s) => s.id === 'reduce_alarms');
+
+assert.ok(catchFraud && balancedF1 && reduceAlarms, 'All 3 operational scenarios must be generated');
+assert.strictEqual(catchFraud.threshold, 0.30);
+assert.strictEqual(catchFraud.tradeoff.recall, 0.76);
+assert.strictEqual(catchFraud.tradeoff.confusion_matrix.false_positives, 16);
+
+assert.strictEqual(balancedF1.threshold, 0.40);
+assert.strictEqual(balancedF1.tradeoff.f1_score, 0.8175);
+
+// High precision scenario should have 0 false alarms
+assert.strictEqual(reduceAlarms.tradeoff.confusion_matrix.false_positives, 0);
+
+console.log('✓ [8/10] Operational scenario generation & trade-off mapping passed.');
+
+// ─────────────────────────────────────────────────────────────────────
+// 9. Confusion Matrix Mathematical Identities
+// ─────────────────────────────────────────────────────────────────────
+const sampleCm = {
+  true_negatives: 56881,
+  false_positives: 6,
+  false_negatives: 19,
+  true_positives: 56,
+};
+const cmMetrics = calculateConfusionMatrixMetrics(sampleCm);
+assert.strictEqual(cmMetrics.total, 56962);
+assert.strictEqual(cmMetrics.actualPositive, 75);
+assert.strictEqual(cmMetrics.actualNegative, 56887);
+assert.strictEqual(cmMetrics.predictedPositive, 62);
+assert.strictEqual(Number((cmMetrics.recall * 100).toFixed(2)), 74.67);
+assert.strictEqual(Number((cmMetrics.precision * 100).toFixed(2)), 90.32);
+assert.strictEqual(Number((cmMetrics.f1_score).toFixed(4)), 0.8175);
+assert.ok(cmMetrics.false_positive_rate > 0 && cmMetrics.false_positive_rate < 0.001);
+
+// Null/empty CM guard
+const emptyCm = calculateConfusionMatrixMetrics(null);
+assert.strictEqual(emptyCm.total, 0);
+assert.strictEqual(emptyCm.recall, 0);
+
+console.log('✓ [9/10] Confusion matrix derived metric calculation passed.');
+
+// ─────────────────────────────────────────────────────────────────────
+// 10. Dynamic Plain-Language Narrative Generation
+// ─────────────────────────────────────────────────────────────────────
+const t30 = findNearestTradeoff(0.30, rfTradeoffs);
+const t50 = findNearestTradeoff(0.50, rfTradeoffs);
+const t80 = findNearestTradeoff(0.80, rfTradeoffs);
+
+const narrative30 = generateThresholdNarrative(t30, t50, 'Random Forest');
+assert.ok(narrative30.summary.includes('76.0% of fraud attacks'));
+assert.ok(narrative30.summary.includes('16 false alarms'));
+assert.ok(narrative30.tradeOffComparison.includes('catches 5 additional fraud attacks'));
+
+const narrative80 = generateThresholdNarrative(t80, t50, 'Random Forest');
+assert.ok(narrative80.summary.includes('12.0% of fraud attacks'));
+assert.ok(narrative80.tradeOffComparison.includes('misses 43 more fraud attacks'));
+
+console.log('✓ [10/10] Dynamic plain-language threshold narrative generation passed.');
+
 console.log('\n======================================================');
-console.log('  All Frontend Tests Passed via shared core.js!');
+console.log('  All 10 Frontend Tests Passed via shared core.js!');
 console.log('======================================================');

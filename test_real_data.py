@@ -26,6 +26,7 @@ from evaluate_real_data import (
     evaluate_predictions,
     compute_threshold_tradeoff_analysis,
     compute_aggregate_window_metrics,
+    generate_stability_prose,
     compute_file_sha256,
     run_benchmark,
 )
@@ -287,3 +288,48 @@ def test_mock_benchmark_pipeline_execution():
             assert "## 2. Walk-Forward Temporal Robustness Analysis" in md_content
             assert "## 3. Decision Threshold Sensitivity Analysis" in md_content
             assert "Non-Independence Disclosure" in md_content
+
+
+def test_report_prose_consistency_with_computed_metrics():
+    """Verify that prose claims in Section 4 strictly match the underlying JSON metrics."""
+    json_path = os.path.join("reports", "real_data_evaluation.json")
+    md_path = os.path.join("reports", "real_data_evaluation.md")
+
+    if not os.path.exists(json_path) or not os.path.exists(md_path):
+        pytest.skip("Report files not present locally.")
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    with open(md_path, "r", encoding="utf-8") as f:
+        md_text = f.read()
+
+    temporal = data["temporal_window_evaluation"]
+    agg_rf = temporal["aggregate_metrics"]["random_forest"]["tuned_threshold_aggregate"]["metrics_summary"]
+    tradeoffs_rf = {round(r["threshold"], 2): r for r in data["threshold_tradeoff_analysis"]["random_forest"]}
+
+    # Verify Section 4 text contains the exact PR-AUC aggregate mean and range
+    rf_mean_str = f"Mean: {agg_rf['pr_auc']['mean']} ± {agg_rf['pr_auc']['std']}"
+    rf_range_str = f"PR-AUC {agg_rf['pr_auc']['min']} to {agg_rf['pr_auc']['max']}"
+    assert rf_mean_str in md_text, f"Expected '{rf_mean_str}' in markdown prose."
+    assert rf_range_str in md_text, f"Expected '{rf_range_str}' in markdown prose."
+
+    # Verify threshold 0.30 metrics in prose match candidate threshold table
+    row_30 = tradeoffs_rf[0.30]
+    expected_30_recall = f"{row_30['recall'] * 100:.1f}%"
+    expected_30_fp = f"{row_30['confusion_matrix']['false_positives']} false alarms"
+    expected_30_tp = f"{row_30['confusion_matrix']['true_positives']} of"
+    assert expected_30_recall in md_text, f"Expected recall '{expected_30_recall}' in prose."
+    assert expected_30_fp in md_text, f"Expected '{expected_30_fp}' in prose."
+    assert expected_30_tp in md_text, f"Expected '{expected_30_tp}' in prose."
+
+    # Verify threshold 0.80 metrics in prose match candidate threshold table
+    row_80 = tradeoffs_rf[0.80]
+    expected_80_recall = f"{row_80['recall'] * 100:.1f}%"
+    expected_80_fn = f"missing {row_80['confusion_matrix']['false_negatives']} of"
+    total_test_frauds = row_80["confusion_matrix"]["true_positives"] + row_80["confusion_matrix"]["false_negatives"]
+    expected_80_missed_pct = f"{round(row_80['confusion_matrix']['false_negatives'] / total_test_frauds * 100, 1):.1f}% missed"
+    assert expected_80_recall in md_text, f"Expected recall '{expected_80_recall}' in prose."
+    assert expected_80_fn in md_text, f"Expected '{expected_80_fn}' in prose."
+    assert expected_80_missed_pct in md_text, f"Expected '{expected_80_missed_pct}' in prose."
+

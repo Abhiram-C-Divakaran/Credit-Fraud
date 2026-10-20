@@ -1,6 +1,6 @@
 # Real-World Benchmark & Robustness Evaluation Report
 
-- **Evaluated**: 2026-10-20T09:28:48.709642+00:00
+- **Evaluated**: 2026-10-20T15:04:13.156760+00:00
 - **Dataset**: Credit Card Fraud Detection Dataset, Worldline and the Machine Learning Group (ULB), Kaggle, 2018.
 - **SHA256**: `76274b691b16a6c49d3f159c883398e03ccd6d1ee12d9d8ee38f4b4b98551a89`
 - **Samples**: 284,807 (492 frauds, 0.173%)
@@ -94,9 +94,9 @@ Decision thresholds govern the operational trade-off between fraud capture (reca
 
 ## 4. Stability Findings & Plain-Language Interpretation
 
-1. **Random Forest Stability**: Across all three chronological windows, Random Forest maintained consistent discrimination (PR-AUC 0.771 to 0.821, Mean: 0.801 ± 0.026). Fraud recall remained steady between 73.3% and 74.7%, and precision remained above 80% (reaching 96.9% in Window 2).
+1. **Random Forest Stability**: Across all three chronological windows, Random Forest maintained consistent discrimination (PR-AUC 0.7727 to 0.8291, Mean: 0.8043 ± 0.0288). Fraud recall remained steady between 71.9% and 77.9%, and precision remained above 90.3% (reaching 97.1% in Window 2).
 2. **Logistic Regression Vulnerability to Concept Drift**: While Logistic Regression maintained high recall (84.0% to 89.5%), its precision swung violently from 3.9% in Window 1 (1,250 false alarms) to 37.1% in Window 3 (107 false alarms). Linear decision boundaries struggled with shifting fraud cluster density across time without continuous recalibration.
-3. **Threshold Economics**: Lowering the Random Forest threshold from 0.50 to 0.30 boosts recall to ~79% while keeping false alarms under 20. Conversely, raising the threshold to 0.80 eliminates nearly all false alarms (FPR < 0.00002) at the cost of missing ~35% of fraud attacks.
+3. **Threshold Economics**: Lowering the Random Forest threshold from 0.50 (69.3% recall, 4 false alarms) to 0.30 boosts recall to 76.0% (57 of 75 caught) with 16 false alarms. Conversely, raising the threshold to 0.80 eliminates all false alarms (0 false positives, FPR 0.0), but drops recall to 12.0%, missing 66 of 75 fraud attacks (88.0% missed).
 
 ## 5. Production Disclaimer & Scope
 

@@ -72,13 +72,40 @@ Then open [http://localhost:5500](http://localhost:5500) in your browser.
 
 ---
 
-## 🔬 Part 2: Real-World Benchmark Pipeline (`evaluate_real_data.py`)
+## 📊 Part 2: Evidence-Based Fraud Model Learning Lab (Interactive Web App)
+
+The web application includes an **Evidence-Based Fraud Model Learning Lab** accessible via the top navigation or the landing page. It provides a transparent, evidence-linked educational workbench for exploring how decision thresholds, class imbalances, and temporal variations impact fraud detection economics.
+
+### Key Capabilities
+1. **Interactive Threshold Slider (0.05 to 0.95)**:
+   - Adjust the operating cutoff across candidate thresholds evaluated on the held-out test split (56,962 transactions, 75 frauds).
+   - Dynamic plain-language narrative explains what changes as the threshold moves (e.g. lowering threshold from 0.50 to 0.30 catches 5 additional frauds while generating 12 additional false alarms).
+2. **Operational Scenario Presets**:
+   - **🎯 Catch More Fraud (High Recall)**: Lower threshold (0.30) to capture 76.0% of fraud attacks (57 of 75 caught) with 16 false alarms.
+   - **⚖️ Balanced F1 (Validation Optimum)**: Threshold (0.40) tuned strictly on validation data to maximize harmonic balance (F1: 81.8%, 6 false alarms).
+   - **🛡️ Reduce False Alarms (High Precision)**: Conservative threshold (0.80) to eliminate false alarms (0 false positives), at the expense of missing 66 attacks (12.0% recall).
+3. **Evidence-Linked Metrics & Visual Confusion Matrix**:
+   - Live 2x2 grid (TP, FP, FN, TN) displaying exact counts from checked-in benchmark reports.
+   - 4 primary metric cards: Recall, Precision, F1-Score, and False Positive Rate.
+4. **Walk-Forward Temporal Robustness Explorer**:
+   - Compares performance across 3 expanding chronological windows (0%–80%, 0%–90%, 0%–100%).
+   - Demonstrates Random Forest temporal invariance (PR-AUC 0.7727–0.8291, mean 0.8043 ± 0.0288) versus Logistic Regression precision collapse (37.1% down to 3.9% with 1,250 false alarms in Window 1).
+   - Transparent non-independence disclosure explaining window autocorrelation.
+5. **Data Provenance & Traceability**:
+   - Every number displayed originates from `reports/real_data_evaluation.json`.
+   - Collapsible raw JSON inspector lets users view the exact checked-in evidence payload.
+   - Works statically on GitHub Pages and includes an offline bundle fallback for local `file:///` exploration.
+
+---
+
+## 🔬 Part 3: Real-World Benchmark Pipeline (`evaluate_real_data.py`)
 
 The offline benchmark evaluates models against the real-world **Kaggle / ULB Machine Learning Group** credit card fraud dataset.
 
 ### Why It Is Kept Separate from the Browser Demo
 1. **PCA Features vs Semantic Inputs**: The Kaggle dataset features `V1`–`V28` are anonymized principal components resulting from PCA transformation (to protect cardholder confidentiality). They do not correspond to the interactive demo's intuitive inputs (`distance`, `frequency`, `hour`).
 2. **Class Imbalance Realities**: The real dataset contains **492 frauds among 284,807 transactions (0.172%)**. Production models must optimize Precision-Recall AUC (PR-AUC) rather than raw accuracy.
+3. **No False Production Claims**: Neither model is certified for production credit decisioning. Benchmark results reflect historical offline research and do not predict browser demo behavior.
 
 ### Setup Instructions
 
@@ -116,7 +143,7 @@ The offline benchmark evaluates models against the real-world **Kaggle / ULB Mac
 - **Decision Threshold Sensitivity Analysis**: Evaluates operating points from 0.05 to 0.95 on held-out test data to document the precision, recall, and false-alarm tradeoff.
 - **Report Generation**: Outputs are saved to:
   - `reports/real_data_evaluation.json` (machine-readable metrics, multi-window stats, threshold sweeps, and metadata)
-  - `reports/real_data_evaluation.md` (formatted markdown summary with per-window tables and stability interpretation)
+  - `reports/real_data_evaluation.md` (formatted markdown summary with dynamically verified stability prose)
 
 ### Benchmark Metrics Tracked
 - **PR-AUC (Average Precision)**: Primary metric for severe class imbalance.
@@ -133,10 +160,10 @@ The offline benchmark evaluates models against the real-world **Kaggle / ULB Mac
 The repository includes test suites for both Python and Node.js environments:
 
 ```bash
-# 1. Run Python unit and integration tests (synthetic model + real benchmark pipeline)
+# 1. Run Python unit, temporal robustness, and report consistency tests
 pytest -v
 
-# 2. Run Node.js client-side inference and validation tests
+# 2. Run Node.js client-side inference, report validation, and learning-lab tests
 node test_frontend.js
 
 # 3. Test real-data missing-file handling

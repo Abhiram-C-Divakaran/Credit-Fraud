@@ -422,28 +422,480 @@
     runDetection();
   }
 
+
   // ───────────────────────────────────────────────────────────────────
-  // NAVIGATION (Landing vs Detection View)
+  // BENCHMARK LEARNING LAB CONTROLLER & STATE
+  // ───────────────────────────────────────────────────────────────────
+  const CANDIDATE_THRESHOLDS = [0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.95];
+
+  const benchmarkState = {
+    report: null,
+    isLoaded: false,
+    activeModel: 'random_forest', // 'random_forest' | 'baseline_logistic_regression'
+    thresholdIndex: 3,            // Default candidate 0.30 (index 3)
+    activeScenario: 'catch_fraud',
+    activeWindow: 'all',          // 'all' | '1' | '2' | '3'
+  };
+
+  /**
+   * Load real benchmark data from reports/real_data_evaluation.json.
+   * Seamlessly falls back to window.BENCHMARK_REPORT_DATA when file:/// protocol prevents fetch.
+   */
+  async function loadBenchmarkData() {
+    const statusBadge = document.getElementById('benchmark-status');
+    try {
+      let data = null;
+      try {
+        const response = await fetch('./reports/real_data_evaluation.json', { cache: 'no-cache' });
+        if (response.ok) {
+          data = await response.json();
+        }
+      } catch (fetchErr) {
+        console.warn('[FraudLab] Fetch failed (possibly local file:/// protocol), checking embedded cache...', fetchErr);
+      }
+
+      // Fallback to static cache if fetch was blocked or failed
+      if (!data && typeof window.BENCHMARK_REPORT_DATA === 'object' && window.BENCHMARK_REPORT_DATA) {
+        data = window.BENCHMARK_REPORT_DATA;
+      }
+
+      if (!data) {
+        throw new Error('Benchmark data could not be loaded via fetch or static bundle.');
+      }
+
+      // Validate schema
+      const val = Core.validateBenchmarkReportData(data);
+      if (!val.isValid) {
+        throw new Error(`Benchmark schema validation failed: ${val.error}`);
+      }
+
+      benchmarkState.report = data;
+      benchmarkState.isLoaded = true;
+
+      if (statusBadge) {
+        statusBadge.textContent = '● Benchmark Evidence Ready';
+        statusBadge.className = 'model-badge ready';
+      }
+
+      initBenchmarkUI();
+    } catch (err) {
+      console.error('[FraudLab] Failed to load benchmark data:', err);
+      if (statusBadge) {
+        statusBadge.textContent = '⚠️ Benchmark Data Offline';
+        statusBadge.className = 'model-badge error';
+      }
+    }
+  }
+
+  function initBenchmarkUI() {
+    if (!benchmarkState.report) return;
+
+    // Set dataset provenance hash
+    const shaEl = document.getElementById('bench-sha256');
+    if (shaEl && benchmarkState.report.dataset_metadata) {
+      const fullHash = benchmarkState.report.dataset_metadata.file_sha256 || '';
+      shaEl.textContent = fullHash.substring(0, 16) + '...';
+      shaEl.title = fullHash;
+    }
+
+    renderTemporalTable();
+    updateBenchmarkDisplay();
+  }
+
+  function setBenchmarkModel(modelKey) {
+    if (modelKey !== 'random_forest' && modelKey !== 'baseline_logistic_regression') return;
+    benchmarkState.activeModel = modelKey;
+
+    const btnRf = document.getElementById('bench-model-rf');
+    const btnLr = document.getElementById('bench-model-lr');
+
+    if (btnRf && btnLr) {
+      const isRf = modelKey === 'random_forest';
+      btnRf.classList.toggle('active', isRf);
+      btnRf.setAttribute('aria-checked', isRf ? 'true' : 'false');
+      btnLr.classList.toggle('active', !isRf);
+      btnLr.setAttribute('aria-checked', !isRf ? 'true' : 'false');
+    }
+
+    // Default scenario for newly selected model
+    selectScenario(benchmarkState.activeScenario || 'catch_fraud');
+  }
+
+  function onThresholdSliderInput(sliderVal) {
+    const idx = Math.max(0, Math.min(CANDIDATE_THRESHOLDS.length - 1, parseInt(sliderVal, 10)));
+    benchmarkState.thresholdIndex = idx;
+    benchmarkState.activeScenario = null; // User custom adjusted
+    updateScenarioButtonHighlight();
+    updateBenchmarkDisplay();
+  }
+
+  function selectScenario(scenarioId) {
+    benchmarkState.activeScenario = scenarioId;
+    const isRf = benchmarkState.activeModel === 'random_forest';
+
+    if (scenarioId === 'catch_fraud') {
+      // High recall scenario
+      benchmarkState.thresholdIndex = isRf ? 3 : 5; // 0.30 for RF (76% rec), 0.50 for LR (89% rec)
+    } else if (scenarioId === 'balanced_f1') {
+      // Optimal validation tuned point
+      benchmarkState.thresholdIndex = isRf ? 4 : 10; // 0.40 for RF (tuned 0.399), 0.95 for LR
+    } else if (scenarioId === 'reduce_alarms') {
+      // Minimal false positives
+      benchmarkState.thresholdIndex = isRf ? 8 : 10; // 0.80 for RF (0 FP), 0.95 for LR
+    }
+
+    const slider = document.getElementById('benchmark-threshold-slider');
+    if (slider) {
+      slider.value = benchmarkState.thresholdIndex;
+    }
+
+    updateScenarioButtonHighlight();
+    updateBenchmarkDisplay();
+  }
+
+  function updateScenarioButtonHighlight() {
+    ['catch_fraud', 'balanced_f1', 'reduce_alarms'].forEach((id) => {
+      const btn = document.getElementById(`scenario-${id}`);
+      if (btn) {
+        btn.classList.toggle('active', benchmarkState.activeScenario === id);
+      }
+    });
+  }
+
+  function setTemporalWindow(windowKey) {
+    benchmarkState.activeWindow = windowKey;
+
+    ['all', '1', '2', '3'].forEach((k) => {
+      const btn = document.getElementById(`win-btn-${k}`);
+      if (btn) {
+        const isActive = k === windowKey;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      }
+    });
+
+    highlightTemporalRows();
+  }
+
+  function highlightTemporalRows() {
+    const rows = document.querySelectorAll('#temporal-table-body tr');
+    rows.forEach((row) => {
+      const wId = row.getAttribute('data-window');
+      if (!wId) return;
+      if (benchmarkState.activeWindow === 'all' || wId === benchmarkState.activeWindow) {
+        row.style.opacity = '1.0';
+      } else {
+        row.style.opacity = '0.35';
+      }
+    });
+  }
+
+  function updateBenchmarkDisplay() {
+    if (!benchmarkState.report) return;
+
+    const tradeoffs = benchmarkState.report.threshold_tradeoff_analysis[benchmarkState.activeModel];
+    if (!Array.isArray(tradeoffs) || tradeoffs.length === 0) return;
+
+    const currentItem = tradeoffs[benchmarkState.thresholdIndex] || tradeoffs[3];
+    const baselineItem = tradeoffs.find((r) => Math.abs(r.threshold - 0.50) < 0.001) || tradeoffs[5];
+    const isRf = benchmarkState.activeModel === 'random_forest';
+    const modelDisplayName = isRf ? 'Random Forest' : 'Logistic Regression';
+
+    // 1. Threshold display & slider accessibility
+    const tValEl = document.getElementById('threshold-val');
+    const sliderEl = document.getElementById('benchmark-threshold-slider');
+    if (tValEl) tValEl.textContent = currentItem.threshold.toFixed(2);
+    if (sliderEl) {
+      sliderEl.setAttribute('aria-valuenow', currentItem.threshold.toFixed(2));
+      sliderEl.setAttribute(
+        'aria-valuetext',
+        `Threshold ${currentItem.threshold.toFixed(2)}, Recall ${(currentItem.recall * 100).toFixed(1)}%, False Positives ${currentItem.confusion_matrix.false_positives}`
+      );
+    }
+
+    // 2. Tuned threshold badge
+    const badgeEl = document.getElementById('tuned-threshold-badge');
+    if (badgeEl) {
+      if (isRf) {
+        badgeEl.innerHTML = 'Validation-Tuned Operating Threshold: <strong>0.399</strong> (Peak F1: 81.8%)';
+      } else {
+        badgeEl.innerHTML = 'Validation-Tuned Operating Threshold: <strong>0.950</strong> (F1: 51.4%, Class Imbalance Tuned)';
+      }
+    }
+
+    // 3. Dynamic Narrative & Comparison
+    const narrative = Core.generateThresholdNarrative(currentItem, baselineItem, modelDisplayName);
+    const nTitle = document.getElementById('narrative-title');
+    const nSummary = document.getElementById('narrative-summary');
+    const nTradeoff = document.getElementById('narrative-tradeoff');
+    const nIcon = document.getElementById('narrative-icon');
+
+    if (nTitle) nTitle.textContent = narrative.headline;
+    if (nSummary) nSummary.textContent = narrative.summary;
+    if (nTradeoff) nTradeoff.textContent = narrative.tradeOffComparison;
+    if (nIcon) {
+      if (currentItem.threshold <= 0.30) nIcon.textContent = '🎯';
+      else if (currentItem.threshold <= 0.50) nIcon.textContent = '⚖️';
+      else nIcon.textContent = '🛡️';
+    }
+
+    // 4. Evidence Metric Cards
+    const recEl = document.getElementById('bench-metric-recall');
+    const subRecEl = document.getElementById('bench-sub-recall');
+    const precEl = document.getElementById('bench-metric-precision');
+    const subPrecEl = document.getElementById('bench-sub-precision');
+    const f1El = document.getElementById('bench-metric-f1');
+    const subF1El = document.getElementById('bench-sub-f1');
+    const fprEl = document.getElementById('bench-metric-fpr');
+    const subFprEl = document.getElementById('bench-sub-fpr');
+
+    const cm = currentItem.confusion_matrix;
+    const totalFrauds = cm.true_positives + cm.false_negatives;
+    const totalLegit = cm.true_negatives + cm.false_positives;
+
+    if (recEl) recEl.textContent = `${(currentItem.recall * 100).toFixed(1)}%`;
+    if (subRecEl) subRecEl.textContent = `${cm.true_positives} of ${totalFrauds} frauds caught`;
+
+    if (precEl) precEl.textContent = `${(currentItem.precision * 100).toFixed(1)}%`;
+    if (subPrecEl) subPrecEl.textContent = `${cm.false_positives} false alarms on legit txns`;
+
+    if (f1El) f1El.textContent = currentItem.f1_score.toFixed(3);
+    if (subF1El) {
+      subF1El.textContent = isRf ? 'Validation tuned peak: 0.818 at t=0.40' : 'Validation tuned peak: 0.514 at t=0.95';
+    }
+
+    if (fprEl) fprEl.textContent = `${(currentItem.false_positive_rate * 100).toFixed(4)}%`;
+    if (subFprEl) subFprEl.textContent = `${cm.false_positives} / ${totalLegit.toLocaleString()} legit flagged`;
+
+    // 5. 2x2 Confusion Matrix Grid
+    const cmThresh = document.getElementById('cm-threshold-label');
+    const cmTp = document.getElementById('cm-tp-val');
+    const cmTpPct = document.getElementById('cm-tp-pct');
+    const cmFn = document.getElementById('cm-fn-val');
+    const cmFnPct = document.getElementById('cm-fn-pct');
+    const cmFp = document.getElementById('cm-fp-val');
+    const cmFpPct = document.getElementById('cm-fp-pct');
+    const cmTn = document.getElementById('cm-tn-val');
+
+    if (cmThresh) cmThresh.textContent = currentItem.threshold.toFixed(2);
+    if (cmTp) cmTp.textContent = cm.true_positives.toLocaleString();
+    if (cmTpPct) cmTpPct.textContent = `${(currentItem.recall * 100).toFixed(1)}% attacks caught`;
+
+    if (cmFn) cmFn.textContent = cm.false_negatives.toLocaleString();
+    if (cmFnPct) cmFnPct.textContent = `${((1 - currentItem.recall) * 100).toFixed(1)}% attacks missed`;
+
+    if (cmFp) cmFp.textContent = cm.false_positives.toLocaleString();
+    if (cmFpPct) cmFpPct.textContent = `${cm.false_positives} false alarms (${(currentItem.false_positive_rate * 100).toFixed(3)}% FPR)`;
+
+    if (cmTn) cmTn.textContent = cm.true_negatives.toLocaleString();
+
+    // 6. Operational Economics text
+    const ecoText = document.getElementById('tradeoff-economics-text');
+    if (ecoText) {
+      ecoText.innerHTML = `Operating at threshold <strong>${currentItem.threshold.toFixed(2)}</strong> intercepts <strong>${cm.true_positives}</strong> fraudulent transactions while declining <strong>${cm.false_positives}</strong> legitimate cardholders and letting <strong>${cm.false_negatives}</strong> attacks slip through.`;
+    }
+
+    // 7. Scenario Stats Subtitle in Preset Cards
+    const catchCard = document.getElementById('scenario-stats-catch');
+    const balCard = document.getElementById('scenario-stats-balanced');
+    const redCard = document.getElementById('scenario-stats-reduce');
+
+    if (isRf) {
+      if (catchCard) catchCard.textContent = 'Threshold 0.30 • 76.0% Recall • 16 False Alarms';
+      if (balCard) balCard.textContent = 'Threshold 0.40 • 81.8% F1 • 6 False Alarms';
+      if (redCard) redCard.textContent = 'Threshold 0.80 • 0 False Alarms • 12.0% Recall';
+    } else {
+      if (catchCard) catchCard.textContent = 'Threshold 0.50 • 89.3% Recall • 1,408 False Alarms';
+      if (balCard) balCard.textContent = 'Threshold 0.95 • 51.4% F1 • 107 False Alarms';
+      if (redCard) redCard.textContent = 'Threshold 0.95 • 107 False Alarms • 84.0% Recall';
+    }
+
+    // 8. Raw Evidence Accordion Slice
+    const rawEl = document.getElementById('raw-evidence-json');
+    if (rawEl) {
+      const rawSlice = {
+        scope: "Real-world Kaggle/ULB Benchmark (reports/real_data_evaluation.json)",
+        model_evaluated: modelDisplayName,
+        decision_threshold: currentItem.threshold,
+        metrics: {
+          recall: currentItem.recall,
+          precision: currentItem.precision,
+          f1_score: currentItem.f1_score,
+          false_positive_rate: currentItem.false_positive_rate,
+          roc_auc: currentItem.roc_auc,
+          pr_auc: currentItem.pr_auc,
+        },
+        confusion_matrix: currentItem.confusion_matrix,
+        reference_tuned_operating_threshold: isRf
+          ? benchmarkState.report.results.random_forest.validation_tuned_threshold
+          : benchmarkState.report.results.baseline_logistic_regression.validation_tuned_threshold,
+      };
+      rawEl.textContent = JSON.stringify(rawSlice, null, 2);
+    }
+
+    // Announce to screen reader
+    const announcer = document.getElementById('result-announcer');
+    if (announcer) {
+      announcer.textContent = `Benchmark updated: ${modelDisplayName} at threshold ${currentItem.threshold.toFixed(2)}. Recall ${(currentItem.recall * 100).toFixed(1)} percent, precision ${(currentItem.precision * 100).toFixed(1)} percent, ${cm.false_positives} false alarms.`;
+    }
+  }
+
+  function renderTemporalTable() {
+    const tbody = document.getElementById('temporal-table-body');
+    if (!tbody || !benchmarkState.report || !benchmarkState.report.temporal_window_evaluation) return;
+
+    const temporal = benchmarkState.report.temporal_window_evaluation;
+    const windows = temporal.windows || [];
+    let rowsHtml = '';
+
+    windows.forEach((w) => {
+      const idx = w.window_index;
+      const counts = w.window_counts;
+      const rf = w.random_forest.test_at_tuned_threshold;
+      const lr = w.baseline_logistic_regression.test_at_tuned_threshold;
+
+      // Random Forest Row
+      rowsHtml += `
+        <tr data-window="${idx}" class="temporal-rf-row">
+          <td><strong>🌲 Random Forest (W${idx})</strong></td>
+          <td>${counts.test_time_range_seconds[0].toFixed(0)}s &ndash; ${counts.test_time_range_seconds[1].toFixed(0)}s</td>
+          <td>${counts.train_samples.toLocaleString()} (${counts.train_frauds})</td>
+          <td>${counts.test_samples.toLocaleString()} (${counts.test_frauds})</td>
+          <td>${rf.threshold.toFixed(4)}</td>
+          <td><strong>${rf.pr_auc.toFixed(4)}</strong></td>
+          <td>${rf.roc_auc.toFixed(4)}</td>
+          <td>${(rf.precision * 100).toFixed(1)}%</td>
+          <td>${(rf.recall * 100).toFixed(1)}%</td>
+          <td>${(rf.f1_score * 100).toFixed(1)}%</td>
+          <td>${rf.confusion_matrix.false_positives} (${(rf.false_positive_rate * 100).toFixed(4)}%)</td>
+        </tr>
+      `;
+
+      // Logistic Regression Row
+      rowsHtml += `
+        <tr data-window="${idx}" class="temporal-lr-row" style="color:var(--text-secondary);">
+          <td>📈 Baseline LR (W${idx})</td>
+          <td>${counts.test_time_range_seconds[0].toFixed(0)}s &ndash; ${counts.test_time_range_seconds[1].toFixed(0)}s</td>
+          <td>${counts.train_samples.toLocaleString()} (${counts.train_frauds})</td>
+          <td>${counts.test_samples.toLocaleString()} (${counts.test_frauds})</td>
+          <td>${lr.threshold.toFixed(4)}</td>
+          <td>${lr.pr_auc.toFixed(4)}</td>
+          <td>${lr.roc_auc.toFixed(4)}</td>
+          <td>${(lr.precision * 100).toFixed(1)}%</td>
+          <td>${(lr.recall * 100).toFixed(1)}%</td>
+          <td>${(lr.f1_score * 100).toFixed(1)}%</td>
+          <td>${lr.confusion_matrix.false_positives.toLocaleString()} (${(lr.false_positive_rate * 100).toFixed(4)}%)</td>
+        </tr>
+      `;
+    });
+
+    // Add aggregate multi-window row
+    if (temporal.aggregate_metrics) {
+      const aggRf = temporal.aggregate_metrics.random_forest.tuned_threshold_aggregate.metrics_summary;
+      const aggLr = temporal.aggregate_metrics.baseline_logistic_regression.tuned_threshold_aggregate.metrics_summary;
+
+      rowsHtml += `
+        <tr class="agg-row" style="border-top: 2px solid var(--primary);">
+          <td><strong>🌲 RF Aggregate (Mean &plusmn; Std)</strong></td>
+          <td>3 Windows Total</td>
+          <td>Expanding</td>
+          <td>170,885 total</td>
+          <td>Tuned/Val</td>
+          <td><strong>${aggRf.pr_auc.mean} &plusmn; ${aggRf.pr_auc.std}</strong></td>
+          <td>${aggRf.roc_auc.mean}</td>
+          <td>${(aggRf.precision.mean * 100).toFixed(1)}% &plusmn; ${(aggRf.precision.std * 100).toFixed(1)}%</td>
+          <td>${(aggRf.recall.mean * 100).toFixed(1)}% &plusmn; ${(aggRf.recall.std * 100).toFixed(1)}%</td>
+          <td>${(aggRf.f1_score.mean * 100).toFixed(1)}%</td>
+          <td>Spread: ${aggRf.pr_auc.spread}</td>
+        </tr>
+        <tr class="agg-row" style="color:var(--text-secondary);">
+          <td><strong>📈 LR Aggregate (Mean &plusmn; Std)</strong></td>
+          <td>3 Windows Total</td>
+          <td>Expanding</td>
+          <td>170,885 total</td>
+          <td>0.9500</td>
+          <td>${aggLr.pr_auc.mean} &plusmn; ${aggLr.pr_auc.std}</td>
+          <td>${aggLr.roc_auc.mean}</td>
+          <td>${(aggLr.precision.mean * 100).toFixed(1)}% &plusmn; ${(aggLr.precision.std * 100).toFixed(1)}%</td>
+          <td>${(aggLr.recall.mean * 100).toFixed(1)}% &plusmn; ${(aggLr.recall.std * 100).toFixed(1)}%</td>
+          <td>${(aggLr.f1_score.mean * 100).toFixed(1)}%</td>
+          <td>Spread: ${aggLr.precision.spread} (Drift)</td>
+        </tr>
+      `;
+    }
+
+    tbody.innerHTML = rowsHtml;
+  }
+
+
+  // ───────────────────────────────────────────────────────────────────
+  // NAVIGATION (Landing vs Detection View vs Benchmark Learning Lab)
   // ───────────────────────────────────────────────────────────────────
   function showDetection() {
     const landing = document.getElementById('landing');
     const detection = document.getElementById('detection');
+    const lab = document.getElementById('learning-lab');
     if (landing) landing.style.display = 'none';
+    if (lab) lab.style.display = 'none';
     if (detection) {
       detection.style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    updateNavTabs('demo');
+  }
+
+  function showLearningLab() {
+    const landing = document.getElementById('landing');
+    const detection = document.getElementById('detection');
+    const lab = document.getElementById('learning-lab');
+    if (landing) landing.style.display = 'none';
+    if (detection) detection.style.display = 'none';
+    if (lab) {
+      lab.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    updateNavTabs('lab');
+    if (benchmarkState.isLoaded) {
+      updateBenchmarkDisplay();
+    } else {
+      loadBenchmarkData();
     }
   }
 
   function showLanding() {
     const detection = document.getElementById('detection');
+    const lab = document.getElementById('learning-lab');
     const landing = document.getElementById('landing');
     if (detection) detection.style.display = 'none';
+    if (lab) lab.style.display = 'none';
     if (landing) {
       landing.style.display = 'flex';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
+
+  function updateNavTabs(activeTab) {
+    const isDemo = activeTab === 'demo';
+    const pairs = [
+      ['nav-btn-demo', 'nav-btn-lab'],
+      ['detect-tab-demo', 'detect-tab-lab'],
+      ['lab-tab-demo', 'lab-tab-lab'],
+    ];
+
+    pairs.forEach(([demoId, labId]) => {
+      const demoBtn = document.getElementById(demoId);
+      const labBtn = document.getElementById(labId);
+      if (demoBtn) {
+        demoBtn.classList.toggle('active', isDemo);
+        demoBtn.setAttribute('aria-selected', isDemo ? 'true' : 'false');
+      }
+      if (labBtn) {
+        labBtn.classList.toggle('active', !isDemo);
+        labBtn.setAttribute('aria-selected', !isDemo ? 'true' : 'false');
+      }
+    });
+  }
+
 
   // ───────────────────────────────────────────────────────────────────
   // UTILITIES
@@ -463,20 +915,28 @@
   // ───────────────────────────────────────────────────────────────────
   window.FraudApp = {
     state,
+    benchmarkState,
     loadModel,
     runDetection,
     loadPreset,
     setToggle,
     showDetection,
+    showLearningLab,
     showLanding,
     toggleTheme,
     validateAllInputs,
+    loadBenchmarkData,
+    setBenchmarkModel,
+    onThresholdSliderInput,
+    selectScenario,
+    setTemporalWindow,
   };
 
   document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     attachFieldListeners();
     loadModel();
+    loadBenchmarkData();
 
     // Event listener bindings
     const themeBtn = document.getElementById('theme-toggle');

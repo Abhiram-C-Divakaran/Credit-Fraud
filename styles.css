@@ -1168,3 +1168,640 @@ body.dark .prob-bar-bg {
     padding: 20px;
   }
 }
+
+/* =====================================================================
+   Evidence-Based Fraud Model Learning Lab Styles
+   ===================================================================== */
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--input-bg);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+}
+
+.nav-tab {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.nav-tab:hover {
+  color: var(--text-primary);
+}
+
+.nav-tab.active {
+  background: var(--card-bg);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Learning Lab Main View */
+#learning-lab {
+  display: none;
+  min-height: 100vh;
+}
+
+.lab-body {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 30px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Scope & Separation Card */
+.scope-banner {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 5px solid var(--primary);
+  border-radius: 14px;
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.scope-banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.scope-title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 5px 14px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.provenance-tag {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.scope-banner p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.scope-separation-alert {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  color: var(--warning-amber);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Model Toggle Pill */
+.model-toggle-pill {
+  display: inline-flex;
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.model-toggle-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.model-toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.model-toggle-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+}
+
+.tuned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--safe-green);
+  background: var(--safe-bg);
+  border: 1px solid var(--safe-border);
+  padding: 6px 14px;
+  border-radius: 8px;
+}
+
+/* Scenario Presets Grid */
+.scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.scenario-card {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scenario-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.scenario-card.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 0 0 3px var(--primary-ring);
+}
+
+.scenario-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.scenario-icon {
+  font-size: 24px;
+}
+
+.scenario-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--toggle-bg);
+  color: var(--text-secondary);
+}
+
+.scenario-card.active .scenario-badge {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.scenario-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.scenario-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.scenario-stats {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px dashed var(--card-border);
+}
+
+/* Threshold Slider Section */
+.threshold-control-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.threshold-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.threshold-value-display {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.threshold-number {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.custom-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--toggle-bg);
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+  border: 3px solid #ffffff;
+  transition: transform 0.15s ease;
+}
+
+.custom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.custom-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px var(--primary-ring);
+}
+
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: -12px;
+}
+
+/* Dynamic Plain-Language Narrative Box */
+.narrative-box {
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.narrative-headline {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.narrative-summary {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.narrative-callout {
+  background: var(--card-bg);
+  border-left: 4px solid var(--warning-amber);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Evidence Metrics Grid */
+.bench-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.bench-metric-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bench-metric-val {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.bench-metric-lbl {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.bench-metric-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* 2x2 Confusion Matrix Visual */
+.cm-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.cm-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.cm-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 8px;
+  margin-top: 14px;
+}
+
+.cm-table th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 6px;
+}
+
+.cm-row-header {
+  text-align: right !important;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-right: 12px;
+}
+
+.cm-cell {
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.cm-cell-count {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.cm-cell-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.cm-cell-desc {
+  font-size: 10px;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.cm-tp {
+  background: var(--safe-bg);
+  border-color: var(--safe-border);
+  color: var(--safe-green);
+}
+
+.cm-fn {
+  background: var(--fraud-bg);
+  border-color: var(--fraud-border);
+  color: var(--fraud-red);
+}
+
+.cm-fp {
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+  color: var(--warning-amber);
+}
+
+.cm-tn {
+  background: var(--input-bg);
+  border-color: var(--card-border);
+  color: var(--text-secondary);
+}
+
+/* Temporal Window Comparison Section */
+.temporal-section {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.temporal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.window-nav-pills {
+  display: inline-flex;
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.window-pill {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.window-pill:hover {
+  color: var(--text-primary);
+}
+
+.window-pill.active {
+  background: var(--card-bg);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.temporal-table-wrapper {
+  overflow-x: auto;
+}
+
+.temporal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.temporal-table th {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 12px 14px;
+  border-bottom: 2px solid var(--card-border);
+  white-space: nowrap;
+}
+
+.temporal-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--card-border);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.temporal-table tr.active-row td {
+  background: var(--primary-light);
+  font-weight: 600;
+}
+
+.temporal-table tr.agg-row td {
+  background: var(--input-bg);
+  font-weight: 700;
+  border-top: 2px solid var(--card-border);
+}
+
+/* Insight Cards Grid */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.insight-card {
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.insight-card h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insight-card p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Raw Evidence Accordion */
+.evidence-details {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  font-size: 13px;
+}
+
+.evidence-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary);
+  outline: none;
+}
+
+.evidence-details summary:focus-visible {
+  outline: 2px solid var(--primary);
+  border-radius: 4px;
+}
+
+.evidence-pre {
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 14px;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  color: var(--text-primary);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .scenarios-grid, .bench-metrics-row, .insights-grid, .cm-section {
+    grid-template-columns: 1fr;
+  }
+}
