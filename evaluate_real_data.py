@@ -120,13 +120,13 @@ def tune_decision_threshold(y_true: np.ndarray, y_probs: np.ndarray, num_steps: 
         if score > best_f1:
             best_f1 = score
             best_thresh = float(thresh)
-    return best_thresh
+    return float(round(best_thresh, 4))
 
 
 def evaluate_predictions(y_true: np.ndarray, y_probs: np.ndarray, threshold: float = 0.5) -> dict:
     """Calculate comprehensive evaluation metrics suited for severe class imbalance."""
     preds = (y_probs >= threshold).astype(int)
-    cm = confusion_matrix(y_true, preds)
+    cm = confusion_matrix(y_true, preds, labels=[0, 1])
     tn, fp, fn, tp = cm.ravel()
 
     pr_auc = float(average_precision_score(y_true, y_probs))
@@ -253,9 +253,9 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
     print(f"{'Model':<24} {'PR-AUC':<9} {'ROC-AUC':<9} {'Precision':<11} {'Recall':<9} {'F1':<8} {'FPR':<8}")
     print("-" * 75)
     print(f"{'Baseline (thr=0.5)':<24} {eval_base_std['pr_auc']:<9} {eval_base_std['roc_auc']:<9} {eval_base_std['precision']:<11} {eval_base_std['recall']:<9} {eval_base_std['f1_score']:<8} {eval_base_std['false_positive_rate']:<8}")
-    print(f"{f'Baseline (thr={best_thresh_base})':<24} {eval_base_tuned['pr_auc']:<9} {eval_base_tuned['roc_auc']:<9} {eval_base_tuned['precision']:<11} {eval_base_tuned['recall']:<9} {eval_base_tuned['f1_score']:<8} {eval_base_tuned['false_positive_rate']:<8}")
+    print(f"{f'Baseline (thr={best_thresh_base:.4f})':<24} {eval_base_tuned['pr_auc']:<9} {eval_base_tuned['roc_auc']:<9} {eval_base_tuned['precision']:<11} {eval_base_tuned['recall']:<9} {eval_base_tuned['f1_score']:<8} {eval_base_tuned['false_positive_rate']:<8}")
     print(f"{'Random Forest (thr=0.5)':<24} {eval_rf_std['pr_auc']:<9} {eval_rf_std['roc_auc']:<9} {eval_rf_std['precision']:<11} {eval_rf_std['recall']:<9} {eval_rf_std['f1_score']:<8} {eval_rf_std['false_positive_rate']:<8}")
-    print(f"{f'Random Forest (thr={best_thresh_rf})':<24} {eval_rf_tuned['pr_auc']:<9} {eval_rf_tuned['roc_auc']:<9} {eval_rf_tuned['precision']:<11} {eval_rf_tuned['recall']:<9} {eval_rf_tuned['f1_score']:<8} {eval_rf_tuned['false_positive_rate']:<8}")
+    print(f"{f'Random Forest (thr={best_thresh_rf:.4f})':<24} {eval_rf_tuned['pr_auc']:<9} {eval_rf_tuned['roc_auc']:<9} {eval_rf_tuned['precision']:<11} {eval_rf_tuned['recall']:<9} {eval_rf_tuned['f1_score']:<8} {eval_rf_tuned['false_positive_rate']:<8}")
     print("-" * 75)
 
     os.makedirs(report_dir, exist_ok=True)
@@ -292,12 +292,12 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
         },
         "results": {
             "baseline_logistic_regression": {
-                "validation_tuned_threshold": best_thresh_base,
+                "validation_tuned_threshold": round(best_thresh_base, 4),
                 "test_at_standard_threshold": eval_base_std,
                 "test_at_tuned_threshold": eval_base_tuned,
             },
             "random_forest": {
-                "validation_tuned_threshold": best_thresh_rf,
+                "validation_tuned_threshold": round(best_thresh_rf, 4),
                 "test_at_standard_threshold": eval_rf_std,
                 "test_at_tuned_threshold": eval_rf_tuned,
             },
@@ -312,20 +312,25 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
     with open(report_json_path, "w", encoding="utf-8") as f:
         json.dump(report_payload, f, indent=2)
 
+    cm_base_std = eval_base_std["confusion_matrix"]
+    cm_base_tuned = eval_base_tuned["confusion_matrix"]
+    cm_rf_std = eval_rf_std["confusion_matrix"]
+    cm_rf_tuned = eval_rf_tuned["confusion_matrix"]
+
     with open(report_md_path, "w", encoding="utf-8") as f:
-        f.write(f"# Real-World Benchmark Evaluation Report\n\n")
+        f.write("# Real-World Benchmark Evaluation Report\n\n")
         f.write(f"- **Evaluated**: {report_payload['timestamp']}\n")
         f.write(f"- **Dataset**: {DATASET_CITATION}\n")
         f.write(f"- **SHA256**: `{file_hash}`\n")
         f.write(f"- **Samples**: {n_total:,} ({n_fraud:,} frauds, {fraud_pct:.3f}%)\n")
         f.write(f"- **Split**: Chronological 60% Train / 20% Val / 20% Test\n\n")
         f.write("## Test Performance (Held-out chronological test split)\n\n")
-        f.write("| Model | PR-AUC | ROC-AUC | Precision | Recall | F1-Score | False Positive Rate |\n")
-        f.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
-        f.write(f"| Baseline LR (0.50) | {eval_base_std['pr_auc']} | {eval_base_std['roc_auc']} | {eval_base_std['precision']} | {eval_base_std['recall']} | {eval_base_std['f1_score']} | {eval_base_std['false_positive_rate']} |\n")
-        f.write(f"| Baseline LR (Tuned: {best_thresh_base}) | {eval_base_tuned['pr_auc']} | {eval_base_tuned['roc_auc']} | {eval_base_tuned['precision']} | {eval_base_tuned['recall']} | {eval_base_tuned['f1_score']} | {eval_base_tuned['false_positive_rate']} |\n")
-        f.write(f"| Random Forest (0.50) | {eval_rf_std['pr_auc']} | {eval_rf_std['roc_auc']} | {eval_rf_std['precision']} | {eval_rf_std['recall']} | {eval_rf_std['f1_score']} | {eval_rf_std['false_positive_rate']} |\n")
-        f.write(f"| Random Forest (Tuned: {best_thresh_rf}) | {eval_rf_tuned['pr_auc']} | {eval_rf_tuned['roc_auc']} | {eval_rf_tuned['precision']} | {eval_rf_tuned['recall']} | {eval_rf_tuned['f1_score']} | {eval_rf_tuned['false_positive_rate']} |\n\n")
+        f.write("| Model | Threshold | PR-AUC | ROC-AUC | Precision | Recall | F1-Score | FPR | Confusion Matrix (TN / FP / FN / TP) |\n")
+        f.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
+        f.write(f"| Baseline LR | 0.50 | {eval_base_std['pr_auc']} | {eval_base_std['roc_auc']} | {eval_base_std['precision']} | {eval_base_std['recall']} | {eval_base_std['f1_score']} | {eval_base_std['false_positive_rate']} | {cm_base_std['true_negatives']} / {cm_base_std['false_positives']} / {cm_base_std['false_negatives']} / {cm_base_std['true_positives']} |\n")
+        f.write(f"| Baseline LR (Tuned) | {best_thresh_base:.4f} | {eval_base_tuned['pr_auc']} | {eval_base_tuned['roc_auc']} | {eval_base_tuned['precision']} | {eval_base_tuned['recall']} | {eval_base_tuned['f1_score']} | {eval_base_tuned['false_positive_rate']} | {cm_base_tuned['true_negatives']} / {cm_base_tuned['false_positives']} / {cm_base_tuned['false_negatives']} / {cm_base_tuned['true_positives']} |\n")
+        f.write(f"| Random Forest | 0.50 | {eval_rf_std['pr_auc']} | {eval_rf_std['roc_auc']} | {eval_rf_std['precision']} | {eval_rf_std['recall']} | {eval_rf_std['f1_score']} | {eval_rf_std['false_positive_rate']} | {cm_rf_std['true_negatives']} / {cm_rf_std['false_positives']} / {cm_rf_std['false_negatives']} / {cm_rf_std['true_positives']} |\n")
+        f.write(f"| Random Forest (Tuned) | {best_thresh_rf:.4f} | {eval_rf_tuned['pr_auc']} | {eval_rf_tuned['roc_auc']} | {eval_rf_tuned['precision']} | {eval_rf_tuned['recall']} | {eval_rf_tuned['f1_score']} | {eval_rf_tuned['false_positive_rate']} | {cm_rf_tuned['true_negatives']} / {cm_rf_tuned['false_positives']} / {cm_rf_tuned['false_negatives']} / {cm_rf_tuned['true_positives']} |\n\n")
         f.write("## Production Disclaimer\n\n")
         f.write(f"> {report_payload['disclaimer']}\n")
 

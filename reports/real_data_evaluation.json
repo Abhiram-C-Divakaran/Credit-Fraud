@@ -1,0 +1,129 @@
+{
+  "timestamp": "2026-10-20T08:28:57.084856+00:00",
+  "dataset_metadata": {
+    "source_name": "Kaggle / ULB Machine Learning Group",
+    "source_url": "https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud",
+    "citation": "Credit Card Fraud Detection Dataset, Worldline and the Machine Learning Group (ULB), Kaggle, 2018.",
+    "file_sha256": "76274b691b16a6c49d3f159c883398e03ccd6d1ee12d9d8ee38f4b4b98551a89",
+    "file_size_mb": 143.84,
+    "row_count": 284807,
+    "features_count": 30,
+    "feature_names": [
+      "Time",
+      "V1",
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "V6",
+      "V7",
+      "V8",
+      "V9",
+      "V10",
+      "V11",
+      "V12",
+      "V13",
+      "V14",
+      "V15",
+      "V16",
+      "V17",
+      "V18",
+      "V19",
+      "V20",
+      "V21",
+      "V22",
+      "V23",
+      "V24",
+      "V25",
+      "V26",
+      "V27",
+      "V28",
+      "Amount"
+    ],
+    "class_distribution": {
+      "legitimate_count": 284315,
+      "fraudulent_count": 492,
+      "fraud_percentage": 0.1727
+    }
+  },
+  "split_methodology": {
+    "method": "Chronological split by 'Time'",
+    "rationale": "Prevents temporal data leakage and look-ahead bias in sequential transactions.",
+    "train_samples": 170884,
+    "val_samples": 56961,
+    "test_samples": 56962
+  },
+  "preprocessing": {
+    "scaler": "RobustScaler applied to Amount and Time",
+    "fit_scope": "Exclusively on X_train"
+  },
+  "results": {
+    "baseline_logistic_regression": {
+      "validation_tuned_threshold": 0.95,
+      "test_at_standard_threshold": {
+        "threshold": 0.5,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0454,
+        "recall": 0.8933,
+        "f1_score": 0.0865,
+        "false_positive_rate": 0.024751,
+        "confusion_matrix": {
+          "true_negatives": 55479,
+          "false_positives": 1408,
+          "false_negatives": 8,
+          "true_positives": 67
+        }
+      },
+      "test_at_tuned_threshold": {
+        "threshold": 0.95,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.3706,
+        "recall": 0.84,
+        "f1_score": 0.5143,
+        "false_positive_rate": 0.001881,
+        "confusion_matrix": {
+          "true_negatives": 56780,
+          "false_positives": 107,
+          "false_negatives": 12,
+          "true_positives": 63
+        }
+      }
+    },
+    "random_forest": {
+      "validation_tuned_threshold": 0.399,
+      "test_at_standard_threshold": {
+        "threshold": 0.5,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.9286,
+        "recall": 0.6933,
+        "f1_score": 0.7939,
+        "false_positive_rate": 7e-05,
+        "confusion_matrix": {
+          "true_negatives": 56883,
+          "false_positives": 4,
+          "false_negatives": 23,
+          "true_positives": 52
+        }
+      },
+      "test_at_tuned_threshold": {
+        "threshold": 0.399,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.9032,
+        "recall": 0.7467,
+        "f1_score": 0.8175,
+        "false_positive_rate": 0.000105,
+        "confusion_matrix": {
+          "true_negatives": 56881,
+          "false_positives": 6,
+          "false_negatives": 19,
+          "true_positives": 56
+        }
+      }
+    }
+  },
+  "disclaimer": "Empirical evaluation on historical European cardholder transactions (Sept 2013). Results reflect specific historical PCA components and do not establish production readiness, adversarial robustness against modern evasions, or transferability across financial institutions."
+}

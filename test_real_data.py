@@ -141,3 +141,25 @@ def test_mock_benchmark_pipeline_execution():
         md_file = os.path.join(mock_report_dir, "real_data_evaluation.md")
         assert os.path.exists(json_file)
         assert os.path.exists(md_file)
+
+
+def test_evaluate_predictions_single_class_edge_cases():
+    """Verify evaluate_predictions safely handles extreme thresholds with zero predicted positives or single class."""
+    y_true = np.array([0, 0, 0, 1])
+    # Extreme threshold 1.0 -> no positive predictions
+    y_probs = np.array([0.1, 0.2, 0.1, 0.8])
+    metrics = evaluate_predictions(y_true, y_probs, threshold=0.99)
+    assert metrics["confusion_matrix"]["true_positives"] == 0
+    assert metrics["confusion_matrix"]["false_positives"] == 0
+    assert metrics["confusion_matrix"]["false_negatives"] == 1
+    assert metrics["confusion_matrix"]["true_negatives"] == 3
+    assert metrics["precision"] == 0.0
+    assert metrics["recall"] == 0.0
+
+    # Extreme threshold 0.0 -> all positive predictions
+    metrics_low = evaluate_predictions(y_true, y_probs, threshold=0.01)
+    assert metrics_low["confusion_matrix"]["true_positives"] == 1
+    assert metrics_low["confusion_matrix"]["false_positives"] == 3
+    assert metrics_low["confusion_matrix"]["false_negatives"] == 0
+    assert metrics_low["confusion_matrix"]["true_negatives"] == 0
+
