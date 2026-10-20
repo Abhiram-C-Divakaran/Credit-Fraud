@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-20T08:28:57.084856+00:00",
+  "timestamp": "2026-10-20T09:28:48.709642+00:00",
   "dataset_metadata": {
     "source_name": "Kaggle / ULB Machine Learning Group",
     "source_url": "https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud",
@@ -45,17 +45,6 @@
       "fraudulent_count": 492,
       "fraud_percentage": 0.1727
     }
-  },
-  "split_methodology": {
-    "method": "Chronological split by 'Time'",
-    "rationale": "Prevents temporal data leakage and look-ahead bias in sequential transactions.",
-    "train_samples": 170884,
-    "val_samples": 56961,
-    "test_samples": 56962
-  },
-  "preprocessing": {
-    "scaler": "RobustScaler applied to Amount and Time",
-    "fit_scope": "Exclusively on X_train"
   },
   "results": {
     "baseline_logistic_regression": {
@@ -124,6 +113,939 @@
         }
       }
     }
+  },
+  "single_split_reference": {
+    "split_methodology": {
+      "method": "Chronological split by 'Time'",
+      "rationale": "Prevents temporal data leakage and look-ahead bias in sequential transactions.",
+      "train_samples": 170884,
+      "val_samples": 56961,
+      "test_samples": 56962
+    },
+    "preprocessing": {
+      "scaler": "RobustScaler applied to Amount and Time",
+      "fit_scope": "Exclusively on X_train"
+    },
+    "results": {
+      "baseline_logistic_regression": {
+        "validation_tuned_threshold": 0.95,
+        "test_at_standard_threshold": {
+          "threshold": 0.5,
+          "pr_auc": 0.7429,
+          "roc_auc": 0.9819,
+          "precision": 0.0454,
+          "recall": 0.8933,
+          "f1_score": 0.0865,
+          "false_positive_rate": 0.024751,
+          "confusion_matrix": {
+            "true_negatives": 55479,
+            "false_positives": 1408,
+            "false_negatives": 8,
+            "true_positives": 67
+          }
+        },
+        "test_at_tuned_threshold": {
+          "threshold": 0.95,
+          "pr_auc": 0.7429,
+          "roc_auc": 0.9819,
+          "precision": 0.3706,
+          "recall": 0.84,
+          "f1_score": 0.5143,
+          "false_positive_rate": 0.001881,
+          "confusion_matrix": {
+            "true_negatives": 56780,
+            "false_positives": 107,
+            "false_negatives": 12,
+            "true_positives": 63
+          }
+        }
+      },
+      "random_forest": {
+        "validation_tuned_threshold": 0.399,
+        "test_at_standard_threshold": {
+          "threshold": 0.5,
+          "pr_auc": 0.811,
+          "roc_auc": 0.9781,
+          "precision": 0.9286,
+          "recall": 0.6933,
+          "f1_score": 0.7939,
+          "false_positive_rate": 7e-05,
+          "confusion_matrix": {
+            "true_negatives": 56883,
+            "false_positives": 4,
+            "false_negatives": 23,
+            "true_positives": 52
+          }
+        },
+        "test_at_tuned_threshold": {
+          "threshold": 0.399,
+          "pr_auc": 0.811,
+          "roc_auc": 0.9781,
+          "precision": 0.9032,
+          "recall": 0.7467,
+          "f1_score": 0.8175,
+          "false_positive_rate": 0.000105,
+          "confusion_matrix": {
+            "true_negatives": 56881,
+            "false_positives": 6,
+            "false_negatives": 19,
+            "true_positives": 56
+          }
+        }
+      }
+    }
+  },
+  "temporal_window_evaluation": {
+    "methodology": {
+      "type": "Expanding chronological windows",
+      "window_count": 3,
+      "independence_warning": "Windows from this sequence are not independent samples due to temporal overlap and sequential attack clustering."
+    },
+    "windows": [
+      {
+        "window_index": 1,
+        "window_name": "Window 1 (Time 0%-80%)",
+        "window_counts": {
+          "train_samples": 113922,
+          "train_frauds": 241,
+          "train_time_range_seconds": [
+            0.0,
+            73261.0
+          ],
+          "val_samples": 56962,
+          "val_frauds": 119,
+          "val_time_range_seconds": [
+            73261.0,
+            120396.0
+          ],
+          "test_samples": 56961,
+          "test_frauds": 57,
+          "test_time_range_seconds": [
+            120396.0,
+            145247.0
+          ]
+        },
+        "baseline_logistic_regression": {
+          "validation_tuned_threshold": 0.95,
+          "test_at_standard_threshold": {
+            "threshold": 0.5,
+            "pr_auc": 0.723,
+            "roc_auc": 0.9566,
+            "precision": 0.0037,
+            "recall": 0.9298,
+            "f1_score": 0.0074,
+            "false_positive_rate": 0.251336,
+            "confusion_matrix": {
+              "true_negatives": 42602,
+              "false_positives": 14302,
+              "false_negatives": 4,
+              "true_positives": 53
+            }
+          },
+          "test_at_tuned_threshold": {
+            "threshold": 0.95,
+            "pr_auc": 0.723,
+            "roc_auc": 0.9566,
+            "precision": 0.0392,
+            "recall": 0.8947,
+            "f1_score": 0.0751,
+            "false_positive_rate": 0.021967,
+            "confusion_matrix": {
+              "true_negatives": 55654,
+              "false_positives": 1250,
+              "false_negatives": 6,
+              "true_positives": 51
+            }
+          }
+        },
+        "random_forest": {
+          "validation_tuned_threshold": 0.4908,
+          "test_at_standard_threshold": {
+            "threshold": 0.5,
+            "pr_auc": 0.7727,
+            "roc_auc": 0.9774,
+            "precision": 0.9535,
+            "recall": 0.7193,
+            "f1_score": 0.82,
+            "false_positive_rate": 3.5e-05,
+            "confusion_matrix": {
+              "true_negatives": 56902,
+              "false_positives": 2,
+              "false_negatives": 16,
+              "true_positives": 41
+            }
+          },
+          "test_at_tuned_threshold": {
+            "threshold": 0.4908,
+            "pr_auc": 0.7727,
+            "roc_auc": 0.9774,
+            "precision": 0.9318,
+            "recall": 0.7193,
+            "f1_score": 0.8119,
+            "false_positive_rate": 5.3e-05,
+            "confusion_matrix": {
+              "true_negatives": 56901,
+              "false_positives": 3,
+              "false_negatives": 16,
+              "true_positives": 41
+            }
+          }
+        }
+      },
+      {
+        "window_index": 2,
+        "window_name": "Window 2 (Time 0%-90%)",
+        "window_counts": {
+          "train_samples": 142403,
+          "train_frauds": 269,
+          "train_time_range_seconds": [
+            0.0,
+            84691.0
+          ],
+          "val_samples": 56961,
+          "val_frauds": 115,
+          "val_time_range_seconds": [
+            84692.0,
+            132928.0
+          ],
+          "test_samples": 56962,
+          "test_frauds": 86,
+          "test_time_range_seconds": [
+            132929.0,
+            157640.0
+          ]
+        },
+        "baseline_logistic_regression": {
+          "validation_tuned_threshold": 0.95,
+          "test_at_standard_threshold": {
+            "threshold": 0.5,
+            "pr_auc": 0.8192,
+            "roc_auc": 0.9669,
+            "precision": 0.0146,
+            "recall": 0.9186,
+            "f1_score": 0.0288,
+            "false_positive_rate": 0.093502,
+            "confusion_matrix": {
+              "true_negatives": 51558,
+              "false_positives": 5318,
+              "false_negatives": 7,
+              "true_positives": 79
+            }
+          },
+          "test_at_tuned_threshold": {
+            "threshold": 0.95,
+            "pr_auc": 0.8192,
+            "roc_auc": 0.9669,
+            "precision": 0.1349,
+            "recall": 0.8721,
+            "f1_score": 0.2336,
+            "false_positive_rate": 0.008457,
+            "confusion_matrix": {
+              "true_negatives": 56395,
+              "false_positives": 481,
+              "false_negatives": 11,
+              "true_positives": 75
+            }
+          }
+        },
+        "random_forest": {
+          "validation_tuned_threshold": 0.4357,
+          "test_at_standard_threshold": {
+            "threshold": 0.5,
+            "pr_auc": 0.8291,
+            "roc_auc": 0.9775,
+            "precision": 0.9701,
+            "recall": 0.7558,
+            "f1_score": 0.8497,
+            "false_positive_rate": 3.5e-05,
+            "confusion_matrix": {
+              "true_negatives": 56874,
+              "false_positives": 2,
+              "false_negatives": 21,
+              "true_positives": 65
+            }
+          },
+          "test_at_tuned_threshold": {
+            "threshold": 0.4357,
+            "pr_auc": 0.8291,
+            "roc_auc": 0.9775,
+            "precision": 0.971,
+            "recall": 0.7791,
+            "f1_score": 0.8645,
+            "false_positive_rate": 3.5e-05,
+            "confusion_matrix": {
+              "true_negatives": 56874,
+              "false_positives": 2,
+              "false_negatives": 19,
+              "true_positives": 67
+            }
+          }
+        }
+      },
+      {
+        "window_index": 3,
+        "window_name": "Window 3 (Time 0%-100%)",
+        "window_counts": {
+          "train_samples": 170884,
+          "train_frauds": 360,
+          "train_time_range_seconds": [
+            0.0,
+            120396.0
+          ],
+          "val_samples": 56961,
+          "val_frauds": 57,
+          "val_time_range_seconds": [
+            120396.0,
+            145247.0
+          ],
+          "test_samples": 56962,
+          "test_frauds": 75,
+          "test_time_range_seconds": [
+            145248.0,
+            172792.0
+          ]
+        },
+        "baseline_logistic_regression": {
+          "validation_tuned_threshold": 0.95,
+          "test_at_standard_threshold": {
+            "threshold": 0.5,
+            "pr_auc": 0.7429,
+            "roc_auc": 0.9819,
+            "precision": 0.0454,
+            "recall": 0.8933,
+            "f1_score": 0.0865,
+            "false_positive_rate": 0.024751,
+            "confusion_matrix": {
+              "true_negatives": 55479,
+              "false_positives": 1408,
+              "false_negatives": 8,
+              "true_positives": 67
+            }
+          },
+          "test_at_tuned_threshold": {
+            "threshold": 0.95,
+            "pr_auc": 0.7429,
+            "roc_auc": 0.9819,
+            "precision": 0.3706,
+            "recall": 0.84,
+            "f1_score": 0.5143,
+            "false_positive_rate": 0.001881,
+            "confusion_matrix": {
+              "true_negatives": 56780,
+              "false_positives": 107,
+              "false_negatives": 12,
+              "true_positives": 63
+            }
+          }
+        },
+        "random_forest": {
+          "validation_tuned_threshold": 0.399,
+          "test_at_standard_threshold": {
+            "threshold": 0.5,
+            "pr_auc": 0.811,
+            "roc_auc": 0.9781,
+            "precision": 0.9286,
+            "recall": 0.6933,
+            "f1_score": 0.7939,
+            "false_positive_rate": 7e-05,
+            "confusion_matrix": {
+              "true_negatives": 56883,
+              "false_positives": 4,
+              "false_negatives": 23,
+              "true_positives": 52
+            }
+          },
+          "test_at_tuned_threshold": {
+            "threshold": 0.399,
+            "pr_auc": 0.811,
+            "roc_auc": 0.9781,
+            "precision": 0.9032,
+            "recall": 0.7467,
+            "f1_score": 0.8175,
+            "false_positive_rate": 0.000105,
+            "confusion_matrix": {
+              "true_negatives": 56881,
+              "false_positives": 6,
+              "false_negatives": 19,
+              "true_positives": 56
+            }
+          }
+        }
+      }
+    ],
+    "aggregate_metrics": {
+      "baseline_logistic_regression": {
+        "standard_threshold_aggregate": {
+          "metrics_summary": {
+            "pr_auc": {
+              "mean": 0.7617,
+              "std": 0.0508,
+              "min": 0.723,
+              "max": 0.8192,
+              "spread": 0.0962
+            },
+            "roc_auc": {
+              "mean": 0.9685,
+              "std": 0.0127,
+              "min": 0.9566,
+              "max": 0.9819,
+              "spread": 0.0253
+            },
+            "precision": {
+              "mean": 0.0212,
+              "std": 0.0216,
+              "min": 0.0037,
+              "max": 0.0454,
+              "spread": 0.0417
+            },
+            "recall": {
+              "mean": 0.9139,
+              "std": 0.0187,
+              "min": 0.8933,
+              "max": 0.9298,
+              "spread": 0.0365
+            },
+            "f1_score": {
+              "mean": 0.0409,
+              "std": 0.0409,
+              "min": 0.0074,
+              "max": 0.0865,
+              "spread": 0.0791
+            },
+            "false_positive_rate": {
+              "mean": 0.1232,
+              "std": 0.1162,
+              "min": 0.0248,
+              "max": 0.2513,
+              "spread": 0.2265
+            }
+          },
+          "total_confusion_matrix": {
+            "true_negatives": 149639,
+            "false_positives": 21028,
+            "false_negatives": 19,
+            "true_positives": 199
+          },
+          "windows_evaluated": 3,
+          "independence_warning": "Temporal windows from this sequence are not independent samples due to temporal autocorrelation, expanding overlap in training sets, and clustered fraudulent attack campaigns within the 48-hour observation period. Mean and spread describe empirical variation across this sequence, not i.i.d. variance."
+        },
+        "tuned_threshold_aggregate": {
+          "metrics_summary": {
+            "pr_auc": {
+              "mean": 0.7617,
+              "std": 0.0508,
+              "min": 0.723,
+              "max": 0.8192,
+              "spread": 0.0962
+            },
+            "roc_auc": {
+              "mean": 0.9685,
+              "std": 0.0127,
+              "min": 0.9566,
+              "max": 0.9819,
+              "spread": 0.0253
+            },
+            "precision": {
+              "mean": 0.1816,
+              "std": 0.1706,
+              "min": 0.0392,
+              "max": 0.3706,
+              "spread": 0.3314
+            },
+            "recall": {
+              "mean": 0.8689,
+              "std": 0.0275,
+              "min": 0.84,
+              "max": 0.8947,
+              "spread": 0.0547
+            },
+            "f1_score": {
+              "mean": 0.2743,
+              "std": 0.2224,
+              "min": 0.0751,
+              "max": 0.5143,
+              "spread": 0.4392
+            },
+            "false_positive_rate": {
+              "mean": 0.0108,
+              "std": 0.0102,
+              "min": 0.0019,
+              "max": 0.022,
+              "spread": 0.0201
+            }
+          },
+          "total_confusion_matrix": {
+            "true_negatives": 168829,
+            "false_positives": 1838,
+            "false_negatives": 29,
+            "true_positives": 189
+          },
+          "windows_evaluated": 3,
+          "independence_warning": "Temporal windows from this sequence are not independent samples due to temporal autocorrelation, expanding overlap in training sets, and clustered fraudulent attack campaigns within the 48-hour observation period. Mean and spread describe empirical variation across this sequence, not i.i.d. variance."
+        }
+      },
+      "random_forest": {
+        "standard_threshold_aggregate": {
+          "metrics_summary": {
+            "pr_auc": {
+              "mean": 0.8043,
+              "std": 0.0288,
+              "min": 0.7727,
+              "max": 0.8291,
+              "spread": 0.0564
+            },
+            "roc_auc": {
+              "mean": 0.9777,
+              "std": 0.0004,
+              "min": 0.9774,
+              "max": 0.9781,
+              "spread": 0.0007
+            },
+            "precision": {
+              "mean": 0.9507,
+              "std": 0.0209,
+              "min": 0.9286,
+              "max": 0.9701,
+              "spread": 0.0415
+            },
+            "recall": {
+              "mean": 0.7228,
+              "std": 0.0314,
+              "min": 0.6933,
+              "max": 0.7558,
+              "spread": 0.0625
+            },
+            "f1_score": {
+              "mean": 0.8212,
+              "std": 0.0279,
+              "min": 0.7939,
+              "max": 0.8497,
+              "spread": 0.0558
+            },
+            "false_positive_rate": {
+              "mean": 0.0,
+              "std": 0.0,
+              "min": 0.0,
+              "max": 0.0001,
+              "spread": 0.0001
+            }
+          },
+          "total_confusion_matrix": {
+            "true_negatives": 170659,
+            "false_positives": 8,
+            "false_negatives": 60,
+            "true_positives": 158
+          },
+          "windows_evaluated": 3,
+          "independence_warning": "Temporal windows from this sequence are not independent samples due to temporal autocorrelation, expanding overlap in training sets, and clustered fraudulent attack campaigns within the 48-hour observation period. Mean and spread describe empirical variation across this sequence, not i.i.d. variance."
+        },
+        "tuned_threshold_aggregate": {
+          "metrics_summary": {
+            "pr_auc": {
+              "mean": 0.8043,
+              "std": 0.0288,
+              "min": 0.7727,
+              "max": 0.8291,
+              "spread": 0.0564
+            },
+            "roc_auc": {
+              "mean": 0.9777,
+              "std": 0.0004,
+              "min": 0.9774,
+              "max": 0.9781,
+              "spread": 0.0007
+            },
+            "precision": {
+              "mean": 0.9353,
+              "std": 0.034,
+              "min": 0.9032,
+              "max": 0.971,
+              "spread": 0.0678
+            },
+            "recall": {
+              "mean": 0.7484,
+              "std": 0.0299,
+              "min": 0.7193,
+              "max": 0.7791,
+              "spread": 0.0598
+            },
+            "f1_score": {
+              "mean": 0.8313,
+              "std": 0.0289,
+              "min": 0.8119,
+              "max": 0.8645,
+              "spread": 0.0526
+            },
+            "false_positive_rate": {
+              "mean": 0.0001,
+              "std": 0.0,
+              "min": 0.0,
+              "max": 0.0001,
+              "spread": 0.0001
+            }
+          },
+          "total_confusion_matrix": {
+            "true_negatives": 170656,
+            "false_positives": 11,
+            "false_negatives": 54,
+            "true_positives": 164
+          },
+          "windows_evaluated": 3,
+          "independence_warning": "Temporal windows from this sequence are not independent samples due to temporal autocorrelation, expanding overlap in training sets, and clustered fraudulent attack campaigns within the 48-hour observation period. Mean and spread describe empirical variation across this sequence, not i.i.d. variance."
+        }
+      },
+      "independence_warning": "Temporal windows from this sequence are not independent samples due to temporal autocorrelation, expanding overlap in training sets, and clustered fraudulent attack campaigns within the 48-hour observation period. Mean and spread describe empirical variation across this sequence, not i.i.d. variance."
+    }
+  },
+  "threshold_tradeoff_analysis": {
+    "methodology": "Candidate decision thresholds evaluated on the held-out test split to observe the precision/recall/FPR tradeoff. Operating decision thresholds used by the system are tuned strictly on validation data.",
+    "candidate_thresholds": [
+      0.05,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      0.95
+    ],
+    "random_forest": [
+      {
+        "threshold": 0.05,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.0152,
+        "recall": 0.92,
+        "f1_score": 0.03,
+        "false_positive_rate": 0.078331,
+        "confusion_matrix": {
+          "true_negatives": 52431,
+          "false_positives": 4456,
+          "false_negatives": 6,
+          "true_positives": 69
+        }
+      },
+      {
+        "threshold": 0.1,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.0932,
+        "recall": 0.8533,
+        "f1_score": 0.168,
+        "false_positive_rate": 0.010952,
+        "confusion_matrix": {
+          "true_negatives": 56264,
+          "false_positives": 623,
+          "false_negatives": 11,
+          "true_positives": 64
+        }
+      },
+      {
+        "threshold": 0.2,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.4773,
+        "recall": 0.84,
+        "f1_score": 0.6087,
+        "false_positive_rate": 0.001213,
+        "confusion_matrix": {
+          "true_negatives": 56818,
+          "false_positives": 69,
+          "false_negatives": 12,
+          "true_positives": 63
+        }
+      },
+      {
+        "threshold": 0.3,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.7808,
+        "recall": 0.76,
+        "f1_score": 0.7703,
+        "false_positive_rate": 0.000281,
+        "confusion_matrix": {
+          "true_negatives": 56871,
+          "false_positives": 16,
+          "false_negatives": 18,
+          "true_positives": 57
+        }
+      },
+      {
+        "threshold": 0.4,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.9032,
+        "recall": 0.7467,
+        "f1_score": 0.8175,
+        "false_positive_rate": 0.000105,
+        "confusion_matrix": {
+          "true_negatives": 56881,
+          "false_positives": 6,
+          "false_negatives": 19,
+          "true_positives": 56
+        }
+      },
+      {
+        "threshold": 0.5,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.9286,
+        "recall": 0.6933,
+        "f1_score": 0.7939,
+        "false_positive_rate": 7e-05,
+        "confusion_matrix": {
+          "true_negatives": 56883,
+          "false_positives": 4,
+          "false_negatives": 23,
+          "true_positives": 52
+        }
+      },
+      {
+        "threshold": 0.6,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.9778,
+        "recall": 0.5867,
+        "f1_score": 0.7333,
+        "false_positive_rate": 1.8e-05,
+        "confusion_matrix": {
+          "true_negatives": 56886,
+          "false_positives": 1,
+          "false_negatives": 31,
+          "true_positives": 44
+        }
+      },
+      {
+        "threshold": 0.7,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 1.0,
+        "recall": 0.4667,
+        "f1_score": 0.6364,
+        "false_positive_rate": 0.0,
+        "confusion_matrix": {
+          "true_negatives": 56887,
+          "false_positives": 0,
+          "false_negatives": 40,
+          "true_positives": 35
+        }
+      },
+      {
+        "threshold": 0.8,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 1.0,
+        "recall": 0.12,
+        "f1_score": 0.2143,
+        "false_positive_rate": 0.0,
+        "confusion_matrix": {
+          "true_negatives": 56887,
+          "false_positives": 0,
+          "false_negatives": 66,
+          "true_positives": 9
+        }
+      },
+      {
+        "threshold": 0.9,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "false_positive_rate": 0.0,
+        "confusion_matrix": {
+          "true_negatives": 56887,
+          "false_positives": 0,
+          "false_negatives": 75,
+          "true_positives": 0
+        }
+      },
+      {
+        "threshold": 0.95,
+        "pr_auc": 0.811,
+        "roc_auc": 0.9781,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "false_positive_rate": 0.0,
+        "confusion_matrix": {
+          "true_negatives": 56887,
+          "false_positives": 0,
+          "false_negatives": 75,
+          "true_positives": 0
+        }
+      }
+    ],
+    "baseline_logistic_regression": [
+      {
+        "threshold": 0.05,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0046,
+        "recall": 0.9867,
+        "f1_score": 0.0092,
+        "false_positive_rate": 0.281031,
+        "confusion_matrix": {
+          "true_negatives": 40900,
+          "false_positives": 15987,
+          "false_negatives": 1,
+          "true_positives": 74
+        }
+      },
+      {
+        "threshold": 0.1,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0071,
+        "recall": 0.96,
+        "f1_score": 0.0141,
+        "false_positive_rate": 0.176912,
+        "confusion_matrix": {
+          "true_negatives": 46823,
+          "false_positives": 10064,
+          "false_negatives": 3,
+          "true_positives": 72
+        }
+      },
+      {
+        "threshold": 0.2,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0124,
+        "recall": 0.92,
+        "f1_score": 0.0245,
+        "false_positive_rate": 0.096683,
+        "confusion_matrix": {
+          "true_negatives": 51387,
+          "false_positives": 5500,
+          "false_negatives": 6,
+          "true_positives": 69
+        }
+      },
+      {
+        "threshold": 0.3,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0203,
+        "recall": 0.9067,
+        "f1_score": 0.0397,
+        "false_positive_rate": 0.057728,
+        "confusion_matrix": {
+          "true_negatives": 53603,
+          "false_positives": 3284,
+          "false_negatives": 7,
+          "true_positives": 68
+        }
+      },
+      {
+        "threshold": 0.4,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0304,
+        "recall": 0.8933,
+        "f1_score": 0.0588,
+        "false_positive_rate": 0.037531,
+        "confusion_matrix": {
+          "true_negatives": 54752,
+          "false_positives": 2135,
+          "false_negatives": 8,
+          "true_positives": 67
+        }
+      },
+      {
+        "threshold": 0.5,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0454,
+        "recall": 0.8933,
+        "f1_score": 0.0865,
+        "false_positive_rate": 0.024751,
+        "confusion_matrix": {
+          "true_negatives": 55479,
+          "false_positives": 1408,
+          "false_negatives": 8,
+          "true_positives": 67
+        }
+      },
+      {
+        "threshold": 0.6,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0638,
+        "recall": 0.88,
+        "f1_score": 0.1189,
+        "false_positive_rate": 0.017034,
+        "confusion_matrix": {
+          "true_negatives": 55918,
+          "false_positives": 969,
+          "false_negatives": 9,
+          "true_positives": 66
+        }
+      },
+      {
+        "threshold": 0.7,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.0919,
+        "recall": 0.8667,
+        "f1_score": 0.1662,
+        "false_positive_rate": 0.011286,
+        "confusion_matrix": {
+          "true_negatives": 56245,
+          "false_positives": 642,
+          "false_negatives": 10,
+          "true_positives": 65
+        }
+      },
+      {
+        "threshold": 0.8,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.1458,
+        "recall": 0.8533,
+        "f1_score": 0.249,
+        "false_positive_rate": 0.006592,
+        "confusion_matrix": {
+          "true_negatives": 56512,
+          "false_positives": 375,
+          "false_negatives": 11,
+          "true_positives": 64
+        }
+      },
+      {
+        "threshold": 0.9,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.2443,
+        "recall": 0.8533,
+        "f1_score": 0.3798,
+        "false_positive_rate": 0.003481,
+        "confusion_matrix": {
+          "true_negatives": 56689,
+          "false_positives": 198,
+          "false_negatives": 11,
+          "true_positives": 64
+        }
+      },
+      {
+        "threshold": 0.95,
+        "pr_auc": 0.7429,
+        "roc_auc": 0.9819,
+        "precision": 0.3706,
+        "recall": 0.84,
+        "f1_score": 0.5143,
+        "false_positive_rate": 0.001881,
+        "confusion_matrix": {
+          "true_negatives": 56780,
+          "false_positives": 107,
+          "false_negatives": 12,
+          "true_positives": 63
+        }
+      }
+    ]
   },
   "disclaimer": "Empirical evaluation on historical European cardholder transactions (Sept 2013). Results reflect specific historical PCA components and do not establish production readiness, adversarial robustness against modern evasions, or transferability across financial institutions."
 }

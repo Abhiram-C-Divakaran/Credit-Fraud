@@ -110,11 +110,13 @@ The offline benchmark evaluates models against the real-world **Kaggle / ULB Mac
   - **20% Validation** (intermediate transactions)
   - **20% Test** (latest unseen transactions)
   *Rationale: Random cross-validation in temporal fraud datasets creates massive look-ahead data leakage because fraud campaigns occur in clustered time bursts. A chronological split reflects real operational deployment.*
-- **Strict Preprocessing Isolation**: `RobustScaler` is fitted **strictly** on training data (`X_train`) and applied downstream to validation and test sets.
+- **Walk-Forward Temporal Robustness (Expanding Windows)**: Evaluates models across three sequential expanding chronological windows (Window 1: 0%–80%, Window 2: 0%–90%, Window 3: 0%–100%) to verify performance stability over shifting fraud attack clusters.
+- **Strict Preprocessing Isolation**: `RobustScaler` is fitted **strictly** on training data (`X_train`) of each respective window and applied downstream to validation and test sets.
 - **Validation-Tuned Decision Threshold**: Rather than assuming an arbitrary `0.5` cutoff, decision thresholds are selected on the validation set to optimize the precision-recall trade-off before final evaluation on the untouched test split.
+- **Decision Threshold Sensitivity Analysis**: Evaluates operating points from 0.05 to 0.95 on held-out test data to document the precision, recall, and false-alarm tradeoff.
 - **Report Generation**: Outputs are saved to:
-  - `reports/real_data_evaluation.json` (machine-readable metrics and metadata)
-  - `reports/real_data_evaluation.md` (formatted markdown summary)
+  - `reports/real_data_evaluation.json` (machine-readable metrics, multi-window stats, threshold sweeps, and metadata)
+  - `reports/real_data_evaluation.md` (formatted markdown summary with per-window tables and stability interpretation)
 
 ### Benchmark Metrics Tracked
 - **PR-AUC (Average Precision)**: Primary metric for severe class imbalance.
@@ -122,6 +124,7 @@ The offline benchmark evaluates models against the real-world **Kaggle / ULB Mac
 - **Precision, Recall, F1-Score**: Evaluated at standard (0.50) and validation-tuned thresholds.
 - **False Positive Rate (FPR)**: Critical for measuring customer friction / false alarms.
 - **Confusion Matrix**: Full breakdown of TP, FP, TN, FN.
+- **Mean & Spread (ddof=1)**: Stability tracking across temporal windows (with non-independence disclosure).
 
 ---
 
