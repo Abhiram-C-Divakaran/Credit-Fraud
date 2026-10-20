@@ -27,6 +27,7 @@
 ├── test_frontend.js         # Node.js test suite for shared core.js module
 │
 ├── .github/workflows/ci.yml # Continuous Integration (pytest + node tests)
+├── requirements.txt         # Reproducible Python dependencies manifest
 ├── LICENSE                  # MIT License
 ├── .gitignore               # Excludes python artifacts, test caches, and raw data
 └── README.md                # System documentation
@@ -39,8 +40,8 @@
 ### How It Works
 Traditional ML deployments rely on server-side APIs that introduce network latency, API costs, and data privacy risks. This demo runs **100% client-side**:
 - User enters transaction parameters.
-- [core.js](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/core.js) standardizes inputs using precomputed `scaler.mean` and `scaler.scale`.
-- The browser traverses 20 pruned decision trees in [model.json](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/model.json) and averages their class probabilities.
+- [core.js](core.js) standardizes inputs using precomputed `scaler.mean` and `scaler.scale`.
+- The browser traverses 20 pruned decision trees in [model.json](model.json) and averages their class probabilities.
 - Risk scores, probability meters, and transaction history update instantaneously without sending data to any external server.
 
 ### Features & Behavioral Signals
@@ -145,12 +146,12 @@ All tests run in headless environments and do **not** require the optional priva
 
 ## ⚙️ Continuous Integration
 
-A GitHub Actions workflow is configured at [.github/workflows/ci.yml](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/.github/workflows/ci.yml). On every push and pull request to `main`:
-1. Sets up Python 3.11 and Node.js 20.
-2. Installs required Python dependencies (`scikit-learn`, `numpy`, `pandas`, `pytest`).
+A GitHub Actions workflow is configured at [.github/workflows/ci.yml](.github/workflows/ci.yml). On every push and pull request to `main`:
+1. Sets up Python 3.11 with pip caching and Node.js 20.
+2. Installs dependencies from [requirements.txt](requirements.txt).
 3. Executes `pytest -v` across all test suites.
-4. Executes `node test_frontend.js` using the shared [core.js](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/core.js) engine.
-5. Verifies graceful missing-dataset handling in [evaluate_real_data.py](file:///c:/Users/Abhiram/Videos/Credit%20Card%20Fraud%20Detection/evaluate_real_data.py).
+4. Executes `node test_frontend.js` using the shared [core.js](core.js) engine.
+5. Verifies graceful missing-dataset handling in [evaluate_real_data.py](evaluate_real_data.py).
 
 ---
 
