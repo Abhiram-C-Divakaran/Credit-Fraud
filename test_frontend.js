@@ -238,28 +238,55 @@ console.log('✓ [7/10] Benchmark threshold nearest neighbor lookups passed.');
 // ─────────────────────────────────────────────────────────────────────
 // 8. Operational Scenarios Generation
 // ─────────────────────────────────────────────────────────────────────
-const rfScenarios = getOperationalScenarios(rfTradeoffs, 0.399);
-assert.strictEqual(rfScenarios.length, 3);
+// 8. Operational Scenarios Generation & Validation Independence
+// ─────────────────────────────────────────────────────────────────────
+// Test 8a: Direct from benchmark report
+const rfScenariosFromReport = getOperationalScenarios(benchmarkReport, 'random_forest');
+assert.strictEqual(rfScenariosFromReport.length, 3);
 
-const catchFraud = rfScenarios.find((s) => s.id === 'catch_fraud');
-const balancedF1 = rfScenarios.find((s) => s.id === 'balanced_f1');
-const reduceAlarms = rfScenarios.find((s) => s.id === 'reduce_alarms');
+const catchFraud = rfScenariosFromReport.find((s) => s.id === 'catch_fraud');
+const balancedF1 = rfScenariosFromReport.find((s) => s.id === 'balanced_f1');
+const reduceAlarms = rfScenariosFromReport.find((s) => s.id === 'reduce_alarms');
 
 assert.ok(catchFraud && balancedF1 && reduceAlarms, 'All 3 operational scenarios must be generated');
-assert.strictEqual(catchFraud.threshold, 0.30);
+assert.strictEqual(catchFraud.selected_threshold, 0.30);
 assert.strictEqual(catchFraud.tradeoff.recall, 0.76);
 assert.strictEqual(catchFraud.tradeoff.confusion_matrix.false_positives, 16);
+assert.strictEqual(catchFraud.is_validation_supported, true);
+assert.ok(catchFraud.selection_rule.includes('Recall_val >= 75%'));
 
-assert.strictEqual(balancedF1.threshold, 0.40);
+assert.strictEqual(balancedF1.selected_threshold, 0.40);
 assert.strictEqual(balancedF1.tradeoff.f1_score, 0.8175);
+assert.strictEqual(balancedF1.is_validation_supported, true);
+assert.ok(balancedF1.selection_rule.includes('Maximize F1-score'));
 
-// High precision scenario should have 0 false alarms
+assert.strictEqual(reduceAlarms.selected_threshold, 0.80);
 assert.strictEqual(reduceAlarms.tradeoff.confusion_matrix.false_positives, 0);
+assert.strictEqual(reduceAlarms.is_validation_supported, true);
 
-console.log('✓ [8/10] Operational scenario generation & trade-off mapping passed.');
+// Test 8b: Logistic Regression scenarios & illustrative unsupported flag
+const lrScenarios = getOperationalScenarios(benchmarkReport, 'baseline_logistic_regression');
+const lrReduce = lrScenarios.find((s) => s.id === 'reduce_alarms');
+assert.strictEqual(lrReduce.is_validation_supported, false);
+assert.strictEqual(lrReduce.operating_status, 'illustrative_test_example');
+
+// Test 8c: Regression test — mutating test tradeoff metrics does NOT change scenario selected thresholds
+const mutatedReport = JSON.parse(JSON.stringify(benchmarkReport));
+mutatedReport.threshold_tradeoff_analysis.random_forest.forEach((row) => {
+  row.recall = 0.01;
+  row.precision = 0.01;
+  row.f1_score = 0.01;
+  row.confusion_matrix.false_positives = 9999;
+});
+const scenariosFromMutated = getOperationalScenarios(mutatedReport, 'random_forest');
+assert.strictEqual(scenariosFromMutated.find((s) => s.id === 'catch_fraud').selected_threshold, 0.30);
+assert.strictEqual(scenariosFromMutated.find((s) => s.id === 'balanced_f1').selected_threshold, 0.40);
+assert.strictEqual(scenariosFromMutated.find((s) => s.id === 'reduce_alarms').selected_threshold, 0.80);
+
+console.log('✓ [8/10] Operational scenario generation & validation data isolation passed.');
 
 // ─────────────────────────────────────────────────────────────────────
-// 9. Confusion Matrix Mathematical Identities
+// 9. Confusion Matrix Mathematical Identities & Zero Denominators
 // ─────────────────────────────────────────────────────────────────────
 const sampleCm = {
   true_negatives: 56881,
@@ -277,12 +304,45 @@ assert.strictEqual(Number((cmMetrics.precision * 100).toFixed(2)), 90.32);
 assert.strictEqual(Number((cmMetrics.f1_score).toFixed(4)), 0.8175);
 assert.ok(cmMetrics.false_positive_rate > 0 && cmMetrics.false_positive_rate < 0.001);
 
-// Null/empty CM guard
+// Zero Denominator Case 1: All zeros confusion matrix
+const zeroCm = calculateConfusionMatrixMetrics({ true_negatives: 0, false_positives: 0, false_negatives: 0, true_positives: 0 });
+assert.strictEqual(zeroCm.total, 0);
+assert.strictEqual(zeroCm.recall, 0);
+assert.strictEqual(zeroCm.precision, 0);
+assert.strictEqual(zeroCm.f1_score, 0);
+assert.strictEqual(zeroCm.false_positive_rate, 0);
+assert.strictEqual(zeroCm.accuracy, 0);
+
+// Zero Denominator Case 2: Zero predicted positives (TP=0, FP=0)
+const zeroPredPosCm = calculateConfusionMatrixMetrics({ true_negatives: 100, false_positives: 0, false_negatives: 10, true_positives: 0 });
+assert.strictEqual(zeroPredPosCm.predictedPositive, 0);
+assert.strictEqual(zeroPredPosCm.precision, 0);
+assert.strictEqual(zeroPredPosCm.recall, 0);
+assert.strictEqual(zeroPredPosCm.f1_score, 0);
+assert.strictEqual(zeroPredPosCm.false_positive_rate, 0);
+assert.strictEqual(zeroPredPosCm.accuracy, 100 / 110);
+
+// Zero Denominator Case 3: Zero actual positives (TP=0, FN=0)
+const zeroActualPosCm = calculateConfusionMatrixMetrics({ true_negatives: 100, false_positives: 5, false_negatives: 0, true_positives: 0 });
+assert.strictEqual(zeroActualPosCm.actualPositive, 0);
+assert.strictEqual(zeroActualPosCm.recall, 0);
+assert.strictEqual(zeroActualPosCm.precision, 0);
+assert.strictEqual(zeroActualPosCm.f1_score, 0);
+assert.strictEqual(zeroActualPosCm.false_positive_rate, 5 / 105);
+
+// Zero Denominator Case 4: Zero actual negatives (TN=0, FP=0)
+const zeroActualNegCm = calculateConfusionMatrixMetrics({ true_negatives: 0, false_positives: 0, false_negatives: 5, true_positives: 25 });
+assert.strictEqual(zeroActualNegCm.actualNegative, 0);
+assert.strictEqual(zeroActualNegCm.false_positive_rate, 0);
+assert.strictEqual(zeroActualNegCm.recall, 25 / 30);
+assert.strictEqual(zeroActualNegCm.precision, 1.0);
+
+// Null/undefined guard
 const emptyCm = calculateConfusionMatrixMetrics(null);
 assert.strictEqual(emptyCm.total, 0);
 assert.strictEqual(emptyCm.recall, 0);
 
-console.log('✓ [9/10] Confusion matrix derived metric calculation passed.');
+console.log('✓ [9/10] Confusion matrix derived metric calculation & zero denominator protections passed.');
 
 // ─────────────────────────────────────────────────────────────────────
 // 10. Dynamic Plain-Language Narrative Generation

@@ -531,18 +531,41 @@
 
   function selectScenario(scenarioId) {
     benchmarkState.activeScenario = scenarioId;
-    const isRf = benchmarkState.activeModel === 'random_forest';
+    const modelKey = benchmarkState.activeModel;
+    let targetThreshold = null;
 
-    if (scenarioId === 'catch_fraud') {
-      // High recall scenario
-      benchmarkState.thresholdIndex = isRf ? 3 : 5; // 0.30 for RF (76% rec), 0.50 for LR (89% rec)
-    } else if (scenarioId === 'balanced_f1') {
-      // Optimal validation tuned point
-      benchmarkState.thresholdIndex = isRf ? 4 : 10; // 0.40 for RF (tuned 0.399), 0.95 for LR
-    } else if (scenarioId === 'reduce_alarms') {
-      // Minimal false positives
-      benchmarkState.thresholdIndex = isRf ? 8 : 10; // 0.80 for RF (0 FP), 0.95 for LR
+    if (benchmarkState.report && benchmarkState.report.operating_scenarios && benchmarkState.report.operating_scenarios[modelKey]) {
+      const scList = benchmarkState.report.operating_scenarios[modelKey];
+      const match = scList.find((s) => s.id === scenarioId);
+      if (match && typeof match.selected_threshold === 'number') {
+        targetThreshold = match.selected_threshold;
+      }
     }
+
+    if (targetThreshold === null) {
+      const isRf = modelKey === 'random_forest';
+      if (scenarioId === 'catch_fraud') {
+        targetThreshold = isRf ? 0.30 : 0.95;
+      } else if (scenarioId === 'balanced_f1') {
+        targetThreshold = isRf ? 0.40 : 0.95;
+      } else if (scenarioId === 'reduce_alarms') {
+        targetThreshold = isRf ? 0.80 : 0.95;
+      } else {
+        targetThreshold = 0.50;
+      }
+    }
+
+    // Match closest candidate index
+    let bestIdx = 0;
+    let minDiff = 999;
+    for (let i = 0; i < CANDIDATE_THRESHOLDS.length; i++) {
+      const diff = Math.abs(CANDIDATE_THRESHOLDS[i] - targetThreshold);
+      if (diff < minDiff) {
+        minDiff = diff;
+        bestIdx = i;
+      }
+    }
+    benchmarkState.thresholdIndex = bestIdx;
 
     const slider = document.getElementById('benchmark-threshold-slider');
     if (slider) {
@@ -630,13 +653,22 @@
     const nTradeoff = document.getElementById('narrative-tradeoff');
     const nIcon = document.getElementById('narrative-icon');
 
-    if (nTitle) nTitle.textContent = narrative.headline;
-    if (nSummary) nSummary.textContent = narrative.summary;
-    if (nTradeoff) nTradeoff.textContent = narrative.tradeOffComparison;
-    if (nIcon) {
-      if (currentItem.threshold <= 0.30) nIcon.textContent = '🎯';
-      else if (currentItem.threshold <= 0.50) nIcon.textContent = '⚖️';
-      else nIcon.textContent = '🛡️';
+    if (benchmarkState.activeScenario === null) {
+      if (nTitle) nTitle.textContent = `Retrospective Sensitivity Analysis (Cutoff: ${currentItem.threshold.toFixed(2)})`;
+      if (nSummary) {
+        nSummary.textContent = `Retrospective exploratory evaluation at cutoff ${currentItem.threshold.toFixed(2)} on held-out test data (${(currentItem.recall * 100).toFixed(1)}% recall, ${cm.false_positives} false alarms). Note: Slider adjustments are for retrospective sensitivity analysis only. Operating thresholds must be selected on validation data.`;
+      }
+      if (nTradeoff) nTradeoff.textContent = narrative.tradeOffComparison;
+      if (nIcon) nIcon.textContent = '🔬';
+    } else {
+      if (nTitle) nTitle.textContent = narrative.headline;
+      if (nSummary) nSummary.textContent = narrative.summary;
+      if (nTradeoff) nTradeoff.textContent = narrative.tradeOffComparison;
+      if (nIcon) {
+        if (currentItem.threshold <= 0.30) nIcon.textContent = '🎯';
+        else if (currentItem.threshold <= 0.50) nIcon.textContent = '⚖️';
+        else nIcon.textContent = '🛡️';
+      }
     }
 
     // 4. Evidence Metric Cards
@@ -695,19 +727,49 @@
       ecoText.innerHTML = `Operating at threshold <strong>${currentItem.threshold.toFixed(2)}</strong> intercepts <strong>${cm.true_positives}</strong> fraudulent transactions while declining <strong>${cm.false_positives}</strong> legitimate cardholders and letting <strong>${cm.false_negatives}</strong> attacks slip through.`;
     }
 
-    // 7. Scenario Stats Subtitle in Preset Cards
-    const catchCard = document.getElementById('scenario-stats-catch');
-    const balCard = document.getElementById('scenario-stats-balanced');
-    const redCard = document.getElementById('scenario-stats-reduce');
+    // 7. Scenario Presets: Badges, Rules, and Validation vs Held-Out Test Stats
+    const catchBadge = document.getElementById('scenario-badge-catch');
+    const balBadge = document.getElementById('scenario-badge-balanced');
+    const redBadge = document.getElementById('scenario-badge-reduce');
+
+    const catchRule = document.getElementById('scenario-rule-catch');
+    const balRule = document.getElementById('scenario-rule-balanced');
+    const redRule = document.getElementById('scenario-rule-reduce');
+
+    const catchStats = document.getElementById('scenario-stats-catch');
+    const balStats = document.getElementById('scenario-stats-balanced');
+    const redStats = document.getElementById('scenario-stats-reduce');
 
     if (isRf) {
-      if (catchCard) catchCard.textContent = 'Threshold 0.30 • 76.0% Recall • 16 False Alarms';
-      if (balCard) balCard.textContent = 'Threshold 0.40 • 81.8% F1 • 6 False Alarms';
-      if (redCard) redCard.textContent = 'Threshold 0.80 • 0 False Alarms • 12.0% Recall';
+      if (catchBadge) catchBadge.textContent = 'Recommended Operating Point';
+      if (balBadge) balBadge.textContent = 'Validation Optimum';
+      if (redBadge) {
+        redBadge.textContent = 'High Precision (0 FP)';
+        redBadge.className = 'scenario-badge';
+      }
+
+      if (catchRule) catchRule.textContent = 'Validation Rule: Recall_val ≥ 75%, maximizing precision';
+      if (balRule) balRule.textContent = 'Validation Rule: Maximize F1-score (harmonic mean)';
+      if (redRule) redRule.textContent = 'Validation Rule: FP_val == 0 while Recall_val > 0';
+
+      if (catchStats) catchStats.textContent = 'Validation: 75.4% Recall, 16 FP • Held-out Test: 76.0% Recall, 16 FP';
+      if (balStats) balStats.textContent = 'Validation: 83.2% F1, 2 FP • Held-out Test: 81.8% F1, 6 FP';
+      if (redStats) redStats.textContent = 'Validation: 0 FP, 7.0% Recall • Held-out Test: 0 FP, 12.0% Recall';
     } else {
-      if (catchCard) catchCard.textContent = 'Threshold 0.50 • 89.3% Recall • 1,408 False Alarms';
-      if (balCard) balCard.textContent = 'Threshold 0.95 • 51.4% F1 • 107 False Alarms';
-      if (redCard) redCard.textContent = 'Threshold 0.95 • 107 False Alarms • 84.0% Recall';
+      if (catchBadge) catchBadge.textContent = 'Recommended Operating Point';
+      if (balBadge) balBadge.textContent = 'Validation Optimum';
+      if (redBadge) {
+        redBadge.textContent = '⚠️ Illustrative Example';
+        redBadge.className = 'scenario-badge illustrative';
+      }
+
+      if (catchRule) catchRule.textContent = 'Validation Rule: Recall_val ≥ 75%, maximizing precision';
+      if (balRule) balRule.textContent = 'Validation Rule: Maximize F1-score (harmonic mean)';
+      if (redRule) redRule.textContent = 'Validation: 0 FP is unattainable on validation data (min 136 FP)';
+
+      if (catchStats) catchStats.textContent = 'Validation: 80.7% Recall, 136 FP • Held-out Test: 84.0% Recall, 107 FP';
+      if (balStats) balStats.textContent = 'Validation: 38.5% F1, 136 FP • Held-out Test: 51.4% F1, 107 FP';
+      if (redStats) redStats.textContent = 'Illustrative test-set example (zero false alarms unsupported on validation data)';
     }
 
     // 8. Raw Evidence Accordion Slice
@@ -717,6 +779,10 @@
         scope: "Real-world Kaggle/ULB Benchmark (reports/real_data_evaluation.json)",
         model_evaluated: modelDisplayName,
         decision_threshold: currentItem.threshold,
+        active_scenario: benchmarkState.activeScenario,
+        operating_scenarios: benchmarkState.report.operating_scenarios
+          ? benchmarkState.report.operating_scenarios[benchmarkState.activeModel]
+          : null,
         metrics: {
           recall: currentItem.recall,
           precision: currentItem.precision,

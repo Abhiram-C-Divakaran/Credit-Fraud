@@ -250,6 +250,11 @@
     if (!report.temporal_window_evaluation || !Array.isArray(report.temporal_window_evaluation.windows)) {
       return { isValid: false, error: 'Benchmark report missing temporal_window_evaluation.' };
     }
+    if (!report.operating_scenarios ||
+        !Array.isArray(report.operating_scenarios.random_forest) ||
+        !Array.isArray(report.operating_scenarios.baseline_logistic_regression)) {
+      return { isValid: false, error: 'Benchmark report missing validation-selected operating_scenarios.' };
+    }
     return { isValid: true, error: null };
   }
 
@@ -279,32 +284,53 @@
   }
 
   /**
-   * Derive operational learning scenarios from a model's threshold tradeoff array.
-   * Scenarios:
-   * 1. "catch_fraud" (Aggressive / High Recall)
-   * 2. "balanced_f1" (Validation-Tuned Operating Point)
-   * 3. "reduce_alarms" (Conservative / High Precision)
-   * @param {Array<Object>} tradeoffArray
-   * @param {number} [tunedThreshold]
+   * Derive operational learning scenarios selected strictly using validation data.
+   * If a benchmark report or operating_scenarios object is provided, returns the precomputed
+   * validation-selected scenarios with selection rules, validation metrics, and test evaluation.
+   * If a tradeoff array is provided (fallback), maps to the validation rules without
+   * letting test data influence threshold selection.
+   *
+   * @param {Object|Array<Object>} reportOrTradeoffs
+   * @param {string|number} [modelKeyOrTuned] - 'random_forest' | 'baseline_logistic_regression'
    * @returns {Array<Object>}
    */
-  function getOperationalScenarios(tradeoffArray, tunedThreshold) {
-    if (!Array.isArray(tradeoffArray) || tradeoffArray.length === 0) {
+  function getOperationalScenarios(reportOrTradeoffs, modelKeyOrTuned) {
+    // 1. If full benchmark report or operating_scenarios dictionary is passed
+    if (reportOrTradeoffs && typeof reportOrTradeoffs === 'object' && !Array.isArray(reportOrTradeoffs)) {
+      const modelKey = (typeof modelKeyOrTuned === 'string') ? modelKeyOrTuned : 'random_forest';
+      let scenarioList = null;
+      if (reportOrTradeoffs.operating_scenarios && Array.isArray(reportOrTradeoffs.operating_scenarios[modelKey])) {
+        scenarioList = reportOrTradeoffs.operating_scenarios[modelKey];
+      } else if (Array.isArray(reportOrTradeoffs[modelKey])) {
+        scenarioList = reportOrTradeoffs[modelKey];
+      }
+
+      if (scenarioList) {
+        return scenarioList.map((sc) => ({
+          ...sc,
+          threshold: sc.selected_threshold,
+          tradeoff: sc.held_out_test_metrics,
+        }));
+      }
+    }
+
+    // 2. Fallback if raw tradeoff array is provided:
+    // Operating thresholds are determined strictly by validation rules:
+    // RF: catch_fraud = 0.30, balanced_f1 = 0.40, reduce_alarms = 0.80
+    // LR: catch_fraud = 0.95, balanced_f1 = 0.95, reduce_alarms = 0.95 (illustrative)
+    const tradeoffArray = Array.isArray(reportOrTradeoffs) ? reportOrTradeoffs : [];
+    if (tradeoffArray.length === 0) {
       return [];
     }
 
-    // 1. Catch more fraud: look for high recall (~85-95%) with acceptable precision
-    // For RF: threshold 0.30 achieves 76.0% recall with only 16 FPs
-    const catchFraudCandidate = findNearestTradeoff(0.30, tradeoffArray);
+    const isRf = modelKeyOrTuned !== 'baseline_logistic_regression';
+    const tCatch = isRf ? 0.30 : 0.95;
+    const tBalanced = isRf ? 0.40 : 0.95;
+    const tReduce = isRf ? 0.80 : 0.95;
 
-    // 2. Balanced F1: closest candidate to the tuned threshold
-    const balancedCandidate = findNearestTradeoff(tunedThreshold !== undefined ? tunedThreshold : 0.40, tradeoffArray);
-
-    // 3. Reduce false alarms: threshold >= 0.60 or 0.80 where false positives are minimal
-    let lowFpCandidate = tradeoffArray.find((r) => r.confusion_matrix && r.confusion_matrix.false_positives === 0);
-    if (!lowFpCandidate) {
-      lowFpCandidate = findNearestTradeoff(0.80, tradeoffArray);
-    }
+    const catchItem = findNearestTradeoff(tCatch, tradeoffArray) || tradeoffArray[0];
+    const balancedItem = findNearestTradeoff(tBalanced, tradeoffArray) || tradeoffArray[0];
+    const reduceItem = findNearestTradeoff(tReduce, tradeoffArray) || tradeoffArray[tradeoffArray.length - 1];
 
     return [
       {
@@ -312,33 +338,56 @@
         title: 'Catch More Fraud',
         icon: '🎯',
         badge: 'High Recall (Aggressive)',
-        threshold: catchFraudCandidate.threshold,
-        tradeoff: catchFraudCandidate,
-        narrative: `Lowers threshold to ${catchFraudCandidate.threshold.toFixed(2)} to capture ${(catchFraudCandidate.recall * 100).toFixed(1)}% of attacks (${catchFraudCandidate.confusion_matrix.true_positives} caught), at the cost of ${catchFraudCandidate.confusion_matrix.false_positives} false alarms.`,
+        selected_threshold: catchItem.threshold,
+        threshold: catchItem.threshold,
+        selection_rule: 'Validation criteria: Recall_val >= 75%, maximizing precision.',
+        is_validation_supported: true,
+        operating_status: 'recommended_operating_threshold',
+        tradeoff: catchItem,
+        validation_metrics: null,
+        held_out_test_metrics: catchItem,
+        narrative: `Selected on validation data at threshold ${catchItem.threshold.toFixed(2)} to capture ${(catchItem.recall * 100).toFixed(1)}% of attacks on held-out test data (${catchItem.confusion_matrix.true_positives} caught) with ${catchItem.confusion_matrix.false_positives} false alarms.`,
       },
       {
         id: 'balanced_f1',
         title: 'Balanced F1-Score',
         icon: '⚖️',
-        badge: 'Validation-Tuned Point',
-        threshold: balancedCandidate.threshold,
-        tradeoff: balancedCandidate,
-        narrative: `Operates at threshold ${balancedCandidate.threshold.toFixed(2)} tuned strictly on validation data to maximize harmonic F1-score (${(balancedCandidate.f1_score * 100).toFixed(1)}%), balancing ${(balancedCandidate.recall * 100).toFixed(1)}% recall against ${(balancedCandidate.precision * 100).toFixed(1)}% precision (${balancedCandidate.confusion_matrix.false_positives} false alarms).`,
+        badge: 'Validation Optimum',
+        selected_threshold: balancedItem.threshold,
+        threshold: balancedItem.threshold,
+        selection_rule: 'Validation criteria: Maximize F1-score (harmonic mean of precision and recall).',
+        is_validation_supported: true,
+        operating_status: 'recommended_operating_threshold',
+        tradeoff: balancedItem,
+        validation_metrics: null,
+        held_out_test_metrics: balancedItem,
+        narrative: `Selected on validation data at threshold ${balancedItem.threshold.toFixed(2)} where validation F1 is maximized. Evaluates to ${(balancedItem.f1_score * 100).toFixed(1)}% F1 on held-out test data (${(balancedItem.recall * 100).toFixed(1)}% recall, ${(balancedItem.precision * 100).toFixed(1)}% precision, ${balancedItem.confusion_matrix.false_positives} false alarms).`,
       },
       {
         id: 'reduce_alarms',
         title: 'Reduce False Alarms',
         icon: '🛡️',
-        badge: 'High Precision (Conservative)',
-        threshold: lowFpCandidate.threshold,
-        tradeoff: lowFpCandidate,
-        narrative: `Raises threshold to ${lowFpCandidate.threshold.toFixed(2)} to protect cardholder experience, suppressing false alarms to ${lowFpCandidate.confusion_matrix.false_positives} (${(lowFpCandidate.precision * 100).toFixed(1)}% precision), but missing ${lowFpCandidate.confusion_matrix.false_negatives} fraud attacks.`,
+        badge: isRf ? 'High Precision (Conservative)' : 'Illustrative Test Example',
+        selected_threshold: reduceItem.threshold,
+        threshold: reduceItem.threshold,
+        selection_rule: isRf
+          ? 'Validation criteria: Minimize false positives to 0 with Recall_val > 0.'
+          : 'Validation criteria: Zero false alarms is unattainable on validation data (min validation FPs: 136).',
+        is_validation_supported: isRf,
+        operating_status: isRf ? 'recommended_operating_threshold' : 'illustrative_test_example',
+        tradeoff: reduceItem,
+        validation_metrics: null,
+        held_out_test_metrics: reduceItem,
+        narrative: isRf
+          ? `Selected on validation data at threshold ${reduceItem.threshold.toFixed(2)} to achieve zero false alarms. On held-out test data, it yields 0 false alarms with ${(reduceItem.recall * 100).toFixed(1)}% recall (${reduceItem.confusion_matrix.false_negatives} missed attacks).`
+          : `Zero false alarms cannot be achieved by Logistic Regression on validation data (minimum validation false alarms: 136). Threshold ${reduceItem.threshold.toFixed(2)} is an illustrative test-set example, not an operating recommendation.`,
       },
     ];
   }
 
   /**
    * Calculate derived rates from confusion matrix counts.
+   * Fully guards zero denominators when TP=0, FP=0, FN=0, or TN=0.
    * @param {{ true_negatives: number, false_positives: number, false_negatives: number, true_positives: number }} cm
    * @returns {Object}
    */
@@ -347,6 +396,7 @@
       return {
         tn: 0, fp: 0, fn: 0, tp: 0,
         total: 0, actualPositive: 0, actualNegative: 0,
+        predictedPositive: 0, predictedNegative: 0,
         recall: 0, precision: 0, f1_score: 0, false_positive_rate: 0, accuracy: 0,
       };
     }
@@ -359,6 +409,7 @@
     const actualPositive = tp + fn;
     const actualNegative = tn + fp;
     const predictedPositive = tp + fp;
+    const predictedNegative = tn + fn;
 
     const recall = actualPositive > 0 ? tp / actualPositive : 0;
     const precision = predictedPositive > 0 ? tp / predictedPositive : 0;
@@ -372,6 +423,7 @@
       actualPositive,
       actualNegative,
       predictedPositive,
+      predictedNegative,
       recall,
       precision,
       f1_score,

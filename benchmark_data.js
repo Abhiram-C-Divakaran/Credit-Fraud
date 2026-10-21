@@ -1,6 +1,6 @@
-// Evidence-based benchmark evaluation data cache
+// Auto-generated benchmark data bundle for static and offline browser access
 window.BENCHMARK_REPORT_DATA = {
-  "timestamp": "2026-10-20T15:04:13.156760+00:00",
+  "timestamp": "2026-10-21T12:24:23.861777+00:00",
   "dataset_metadata": {
     "source_name": "Kaggle / ULB Machine Learning Group",
     "source_url": "https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud",
@@ -46,6 +46,259 @@ window.BENCHMARK_REPORT_DATA = {
       "fraudulent_count": 492,
       "fraud_percentage": 0.1727
     }
+  },
+  "operating_scenarios": {
+    "methodology": "Operating decision thresholds are selected strictly using validation predictions and labels (y_val, val_probs) under explicit operational objective criteria. Held-out test data (y_test, test_probs) is kept completely untouched during scenario selection and is reserved exclusively for final unbiased out-of-sample evaluation.",
+    "random_forest": [
+      {
+        "id": "catch_fraud",
+        "title": "Catch More Fraud",
+        "icon": "\ud83c\udfaf",
+        "badge": "High Recall (Aggressive)",
+        "selected_threshold": 0.3,
+        "selection_rule": "Validation criteria: Recall_val >= 75%, maximizing precision.",
+        "is_validation_supported": true,
+        "operating_status": "recommended_operating_threshold",
+        "justification": "Prioritizes early interception of fraud attacks before authorization. Selected strictly on validation data at threshold 0.30 where validation recall reaches 75.4% with 16 validation false alarms.",
+        "validation_metrics": {
+          "threshold": 0.3,
+          "pr_auc": 0.7353,
+          "roc_auc": 0.9623,
+          "precision": 0.7288,
+          "recall": 0.7544,
+          "f1_score": 0.7414,
+          "false_positive_rate": 0.000281,
+          "confusion_matrix": {
+            "true_negatives": 56888,
+            "false_positives": 16,
+            "false_negatives": 14,
+            "true_positives": 43
+          }
+        },
+        "held_out_test_metrics": {
+          "threshold": 0.3,
+          "pr_auc": 0.811,
+          "roc_auc": 0.9781,
+          "precision": 0.7808,
+          "recall": 0.76,
+          "f1_score": 0.7703,
+          "false_positive_rate": 0.000281,
+          "confusion_matrix": {
+            "true_negatives": 56871,
+            "false_positives": 16,
+            "false_negatives": 18,
+            "true_positives": 57
+          }
+        }
+      },
+      {
+        "id": "balanced_f1",
+        "title": "Balanced F1-Score",
+        "icon": "\u2696\ufe0f",
+        "badge": "Validation Optimum",
+        "selected_threshold": 0.4,
+        "selection_rule": "Validation criteria: Maximize F1-score (harmonic mean of precision and recall).",
+        "is_validation_supported": true,
+        "operating_status": "recommended_operating_threshold",
+        "justification": "Optimizes harmonic balance between fraud capture and false alarms. Selected strictly at threshold 0.40 where validation F1 peaks at 0.8317 (73.7% recall, 95.5% precision).",
+        "validation_metrics": {
+          "threshold": 0.4,
+          "pr_auc": 0.7353,
+          "roc_auc": 0.9623,
+          "precision": 0.9545,
+          "recall": 0.7368,
+          "f1_score": 0.8317,
+          "false_positive_rate": 3.5e-05,
+          "confusion_matrix": {
+            "true_negatives": 56902,
+            "false_positives": 2,
+            "false_negatives": 15,
+            "true_positives": 42
+          }
+        },
+        "held_out_test_metrics": {
+          "threshold": 0.4,
+          "pr_auc": 0.811,
+          "roc_auc": 0.9781,
+          "precision": 0.9032,
+          "recall": 0.7467,
+          "f1_score": 0.8175,
+          "false_positive_rate": 0.000105,
+          "confusion_matrix": {
+            "true_negatives": 56881,
+            "false_positives": 6,
+            "false_negatives": 19,
+            "true_positives": 56
+          }
+        }
+      },
+      {
+        "id": "reduce_alarms",
+        "title": "Reduce False Alarms",
+        "icon": "\ud83d\udee1\ufe0f",
+        "badge": "High Precision (Conservative)",
+        "selected_threshold": 0.8,
+        "selection_rule": "Validation criteria: Minimize false positives to 0 with Recall_val > 0; if 0 FPs is unattainable on validation data, labeled illustrative.",
+        "is_validation_supported": true,
+        "operating_status": "recommended_operating_threshold",
+        "justification": "Suppresses customer friction by eliminating false declines. Selected strictly at threshold 0.80 which achieves 0 false alarms on validation data while still capturing 7.0% of validation fraud attacks.",
+        "validation_metrics": {
+          "threshold": 0.8,
+          "pr_auc": 0.7353,
+          "roc_auc": 0.9623,
+          "precision": 1.0,
+          "recall": 0.0702,
+          "f1_score": 0.1311,
+          "false_positive_rate": 0.0,
+          "confusion_matrix": {
+            "true_negatives": 56904,
+            "false_positives": 0,
+            "false_negatives": 53,
+            "true_positives": 4
+          }
+        },
+        "held_out_test_metrics": {
+          "threshold": 0.8,
+          "pr_auc": 0.811,
+          "roc_auc": 0.9781,
+          "precision": 1.0,
+          "recall": 0.12,
+          "f1_score": 0.2143,
+          "false_positive_rate": 0.0,
+          "confusion_matrix": {
+            "true_negatives": 56887,
+            "false_positives": 0,
+            "false_negatives": 66,
+            "true_positives": 9
+          }
+        }
+      }
+    ],
+    "baseline_logistic_regression": [
+      {
+        "id": "catch_fraud",
+        "title": "Catch More Fraud",
+        "icon": "\ud83c\udfaf",
+        "badge": "High Recall (Aggressive)",
+        "selected_threshold": 0.95,
+        "selection_rule": "Validation criteria: Recall_val >= 75%, maximizing precision.",
+        "is_validation_supported": true,
+        "operating_status": "recommended_operating_threshold",
+        "justification": "Prioritizes early interception of fraud attacks before authorization. Selected strictly on validation data at threshold 0.95 where validation recall reaches 80.7% with 136 validation false alarms.",
+        "validation_metrics": {
+          "threshold": 0.95,
+          "pr_auc": 0.7727,
+          "roc_auc": 0.9709,
+          "precision": 0.2527,
+          "recall": 0.807,
+          "f1_score": 0.3849,
+          "false_positive_rate": 0.00239,
+          "confusion_matrix": {
+            "true_negatives": 56768,
+            "false_positives": 136,
+            "false_negatives": 11,
+            "true_positives": 46
+          }
+        },
+        "held_out_test_metrics": {
+          "threshold": 0.95,
+          "pr_auc": 0.7429,
+          "roc_auc": 0.9819,
+          "precision": 0.3706,
+          "recall": 0.84,
+          "f1_score": 0.5143,
+          "false_positive_rate": 0.001881,
+          "confusion_matrix": {
+            "true_negatives": 56780,
+            "false_positives": 107,
+            "false_negatives": 12,
+            "true_positives": 63
+          }
+        }
+      },
+      {
+        "id": "balanced_f1",
+        "title": "Balanced F1-Score",
+        "icon": "\u2696\ufe0f",
+        "badge": "Validation Optimum",
+        "selected_threshold": 0.95,
+        "selection_rule": "Validation criteria: Maximize F1-score (harmonic mean of precision and recall).",
+        "is_validation_supported": true,
+        "operating_status": "recommended_operating_threshold",
+        "justification": "Optimizes harmonic balance between fraud capture and false alarms. Selected strictly at threshold 0.95 where validation F1 peaks at 0.3849 (80.7% recall, 25.3% precision).",
+        "validation_metrics": {
+          "threshold": 0.95,
+          "pr_auc": 0.7727,
+          "roc_auc": 0.9709,
+          "precision": 0.2527,
+          "recall": 0.807,
+          "f1_score": 0.3849,
+          "false_positive_rate": 0.00239,
+          "confusion_matrix": {
+            "true_negatives": 56768,
+            "false_positives": 136,
+            "false_negatives": 11,
+            "true_positives": 46
+          }
+        },
+        "held_out_test_metrics": {
+          "threshold": 0.95,
+          "pr_auc": 0.7429,
+          "roc_auc": 0.9819,
+          "precision": 0.3706,
+          "recall": 0.84,
+          "f1_score": 0.5143,
+          "false_positive_rate": 0.001881,
+          "confusion_matrix": {
+            "true_negatives": 56780,
+            "false_positives": 107,
+            "false_negatives": 12,
+            "true_positives": 63
+          }
+        }
+      },
+      {
+        "id": "reduce_alarms",
+        "title": "Reduce False Alarms",
+        "icon": "\ud83d\udee1\ufe0f",
+        "badge": "Illustrative Test Example",
+        "selected_threshold": 0.95,
+        "selection_rule": "Validation criteria: Minimize false positives to 0 with Recall_val > 0; if 0 FPs is unattainable on validation data, labeled illustrative.",
+        "is_validation_supported": false,
+        "operating_status": "illustrative_test_example",
+        "justification": "Zero false alarms is not attainable on validation data for this model (minimum validation false alarms: 136). Labeled as an illustrative test-set example rather than an operating recommendation.",
+        "validation_metrics": {
+          "threshold": 0.95,
+          "pr_auc": 0.7727,
+          "roc_auc": 0.9709,
+          "precision": 0.2527,
+          "recall": 0.807,
+          "f1_score": 0.3849,
+          "false_positive_rate": 0.00239,
+          "confusion_matrix": {
+            "true_negatives": 56768,
+            "false_positives": 136,
+            "false_negatives": 11,
+            "true_positives": 46
+          }
+        },
+        "held_out_test_metrics": {
+          "threshold": 0.95,
+          "pr_auc": 0.7429,
+          "roc_auc": 0.9819,
+          "precision": 0.3706,
+          "recall": 0.84,
+          "f1_score": 0.5143,
+          "false_positive_rate": 0.001881,
+          "confusion_matrix": {
+            "true_negatives": 56780,
+            "false_positives": 107,
+            "false_negatives": 12,
+            "true_positives": 63
+          }
+        }
+      }
+    ]
   },
   "results": {
     "baseline_logistic_regression": {
@@ -699,7 +952,7 @@ window.BENCHMARK_REPORT_DATA = {
     }
   },
   "threshold_tradeoff_analysis": {
-    "methodology": "Candidate decision thresholds evaluated on the held-out test split to observe the precision/recall/FPR tradeoff. Operating decision thresholds used by the system are tuned strictly on validation data.",
+    "methodology": "Multi-threshold sensitivity analysis evaluated across candidate thresholds on the held-out test split for retrospective exploration and tradeoff visualization. These candidate points describe out-of-sample behavior and are NOT recommended operating thresholds (which are selected strictly on validation data).",
     "candidate_thresholds": [
       0.05,
       0.1,
@@ -1049,7 +1302,7 @@ window.BENCHMARK_REPORT_DATA = {
     ]
   },
   "stability_analysis": {
-    "summary": "## 4. Stability Findings & Plain-Language Interpretation\n\n1. **Random Forest Stability**: Across all three chronological windows, Random Forest maintained consistent discrimination (PR-AUC 0.7727 to 0.8291, Mean: 0.8043 \u00b1 0.0288). Fraud recall remained steady between 71.9% and 77.9%, and precision remained above 90.3% (reaching 97.1% in Window 2).\n2. **Logistic Regression Vulnerability to Concept Drift**: While Logistic Regression maintained high recall (84.0% to 89.5%), its precision swung violently from 3.9% in Window 1 (1,250 false alarms) to 37.1% in Window 3 (107 false alarms). Linear decision boundaries struggled with shifting fraud cluster density across time without continuous recalibration.\n3. **Threshold Economics**: Lowering the Random Forest threshold from 0.50 (69.3% recall, 4 false alarms) to 0.30 boosts recall to 76.0% (57 of 75 caught) with 16 false alarms. Conversely, raising the threshold to 0.80 eliminates all false alarms (0 false positives, FPR 0.0), but drops recall to 12.0%, missing 66 of 75 fraud attacks (88.0% missed)."
+    "summary": "## 5. Stability Findings & Plain-Language Interpretation\n\n1. **Random Forest Stability**: Across all three chronological windows, Random Forest maintained consistent discrimination (PR-AUC 0.7727 to 0.8291, Mean: 0.8043 \u00b1 0.0288). Fraud recall remained steady between 71.9% and 77.9%, and precision remained above 90.3% (reaching 97.1% in Window 2).\n2. **Logistic Regression Vulnerability to Concept Drift**: While Logistic Regression maintained high recall (84.0% to 89.5%), its precision swung violently from 3.9% in Window 1 (1,250 false alarms) to 37.1% in Window 3 (107 false alarms). Linear decision boundaries struggled with shifting fraud cluster density across time without continuous recalibration.\n3. **Threshold Economics**: Lowering the Random Forest threshold from 0.50 (69.3% recall, 4 false alarms) to 0.30 boosts recall to 76.0% (57 of 75 caught) with 16 false alarms. Conversely, raising the threshold to 0.80 eliminates all false alarms (0 false positives, FPR 0.0), but drops recall to 12.0%, missing 66 of 75 fraud attacks (88.0% missed)."
   },
   "disclaimer": "Empirical evaluation on historical European cardholder transactions (Sept 2013). Results reflect specific historical PCA components and do not establish production readiness, adversarial robustness against modern evasions, or transferability across financial institutions."
 };

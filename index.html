@@ -401,10 +401,10 @@
         <div class="threshold-slider-header">
           <div>
             <h2 id="explorer-heading" style="font-size:18px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;">
-              <span aria-hidden="true">&#127914;</span> Decision Threshold Trade-off Explorer
+              <span aria-hidden="true">&#127914;</span> Operational Scenarios &amp; Retrospective Sensitivity Analysis
             </h2>
             <p style="font-size:13px;color:var(--text-secondary);margin-top:2px;">
-              Select a benchmark classifier and adjust the decision threshold to observe real operational trade-offs.
+              Operating scenarios are tuned strictly on validation data. The held-out test split is reserved exclusively for final evaluation and retrospective sensitivity analysis.
             </p>
           </div>
 
@@ -422,48 +422,57 @@
         <!-- Operational Scenario Presets -->
         <div>
           <label style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px;">
-            Operational Strategy Presets (Plain-Language Scenarios)
+            Operational Strategy Presets (Selected Strictly on Validation Data)
           </label>
           <div class="scenarios-grid" role="group" aria-label="Operational Scenarios">
             <button type="button" class="scenario-card active" id="scenario-catch_fraud" onclick="FraudApp.selectScenario('catch_fraud')">
               <div class="scenario-card-header">
                 <span class="scenario-icon" aria-hidden="true">&#127919;</span>
-                <span class="scenario-badge">High Recall</span>
+                <span class="scenario-badge" id="scenario-badge-catch">Recommended Operating Point</span>
               </div>
               <div class="scenario-title">Catch More Fraud</div>
               <div class="scenario-desc">
                 Lower threshold to intercept more fraudulent attacks before authorization.
               </div>
+              <div class="scenario-rule" id="scenario-rule-catch">
+                Validation Rule: Recall &ge; 75%, maximizing precision
+              </div>
               <div class="scenario-stats" id="scenario-stats-catch">
-                Threshold 0.30 &bull; 76.0% Recall &bull; 16 False Alarms
+                Validation: 75.4% Recall, 16 FP &bull; Test: 76.0% Recall, 16 FP
               </div>
             </button>
 
             <button type="button" class="scenario-card" id="scenario-balanced_f1" onclick="FraudApp.selectScenario('balanced_f1')">
               <div class="scenario-card-header">
                 <span class="scenario-icon" aria-hidden="true">&#9878;&#65039;</span>
-                <span class="scenario-badge">Validation Optimum</span>
+                <span class="scenario-badge" id="scenario-badge-balanced">Validation Optimum</span>
               </div>
               <div class="scenario-title">Balanced F1-Score</div>
               <div class="scenario-desc">
                 Tuned strictly on validation data to maximize harmonic mean of precision and recall.
               </div>
+              <div class="scenario-rule" id="scenario-rule-balanced">
+                Validation Rule: Maximize F1-score (harmonic mean)
+              </div>
               <div class="scenario-stats" id="scenario-stats-balanced">
-                Threshold 0.40 &bull; 81.8% F1 &bull; 6 False Alarms
+                Validation: 83.2% F1, 2 FP &bull; Test: 81.8% F1, 6 FP
               </div>
             </button>
 
             <button type="button" class="scenario-card" id="scenario-reduce_alarms" onclick="FraudApp.selectScenario('reduce_alarms')">
               <div class="scenario-card-header">
                 <span class="scenario-icon" aria-hidden="true">&#128737;&#65039;</span>
-                <span class="scenario-badge">High Precision</span>
+                <span class="scenario-badge" id="scenario-badge-reduce">High Precision</span>
               </div>
               <div class="scenario-title">Reduce False Alarms</div>
-              <div class="scenario-desc">
+              <div class="scenario-desc" id="scenario-desc-reduce">
                 Raise threshold to prevent legitimate cardholder friction and decline complaints.
               </div>
+              <div class="scenario-rule" id="scenario-rule-reduce">
+                Validation Rule: FP == 0 while Recall &gt; 0
+              </div>
               <div class="scenario-stats" id="scenario-stats-reduce">
-                Threshold 0.80 &bull; 0 False Alarms &bull; 12.0% Recall
+                Validation: 0 FP, 7.0% Recall &bull; Test: 0 FP, 12.0% Recall
               </div>
             </button>
           </div>
@@ -473,7 +482,7 @@
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div class="threshold-slider-header">
             <label for="benchmark-threshold-slider" style="font-size:14px;font-weight:600;color:var(--text-primary);">
-              Decision Cutoff Threshold: <span style="font-size:12px;color:var(--text-muted);font-weight:400;">(Transactions with risk &ge; cutoff are flagged)</span>
+              Retrospective Test Sensitivity Slider: <span style="font-size:12px;color:var(--text-muted);font-weight:400;">(Held-out test split exploration only — not an operating selector)</span>
             </label>
             <div class="threshold-value-display">
               <span class="threshold-number" id="threshold-val">0.30</span>
@@ -489,7 +498,7 @@
             step="1"
             value="3"
             class="custom-slider"
-            aria-label="Benchmark Decision Threshold Slider"
+            aria-label="Benchmark Retrospective Decision Threshold Slider"
             aria-valuemin="0.05"
             aria-valuemax="0.95"
             aria-valuenow="0.30"
@@ -516,7 +525,7 @@
               Validation-Tuned Operating Threshold: <strong>0.399</strong> (Max F1)
             </div>
             <span style="font-size:12px;color:var(--text-muted);">
-              Data evaluated on held-out test split (56,962 txns, 75 frauds)
+              Data evaluated on held-out test split (56,962 txns, 75 frauds) for retrospective sensitivity analysis
             </span>
           </div>
         </div>

@@ -1397,6 +1397,17 @@ body.dark .prob-bar-bg {
   line-height: 1.4;
 }
 
+.scenario-rule {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--toggle-bg);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border-left: 3px solid var(--primary);
+  line-height: 1.3;
+}
+
 .scenario-stats {
   font-size: 12px;
   font-weight: 600;

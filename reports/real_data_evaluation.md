@@ -1,6 +1,6 @@
 # Real-World Benchmark & Robustness Evaluation Report
 
-- **Evaluated**: 2026-10-20T15:04:13.156760+00:00
+- **Evaluated**: 2026-10-21T12:24:23.861777+00:00
 - **Dataset**: Credit Card Fraud Detection Dataset, Worldline and the Machine Learning Group (ULB), Kaggle, 2018.
 - **SHA256**: `76274b691b16a6c49d3f159c883398e03ccd6d1ee12d9d8ee38f4b4b98551a89`
 - **Samples**: 284,807 (492 frauds, 0.173%)
@@ -56,9 +56,31 @@ To test whether single-split results were an artifact of one specific time bound
 
 > **Non-Independence Disclosure**: Temporal windows from this sequence are **not independent samples**. They share expanding historical training horizons, sequential temporal autocorrelation, and clustered attack bursts occurring over a single 48-hour recording period. Aggregate mean and spread describe empirical trajectory across this timeline rather than independent identically distributed variance.
 
-## 3. Decision Threshold Sensitivity Analysis
+## 3. Operating Scenarios Tuned Strictly on Validation Data
 
-Decision thresholds govern the operational trade-off between fraud capture (recall) and customer friction (false positives). In this pipeline, the operating threshold is tuned **strictly on validation data**.
+Operating thresholds are selected **strictly using validation data** (`y_val`, `val_probs`) according to explicit operational criteria. The held-out test split remains completely untouched during threshold tuning and is reserved exclusively for unbiased final evaluation.
+
+### Random Forest Operating Scenarios (Validation Tuned)
+
+| Preset | Selection Rule (Validation Only) | Selected Threshold | Validation Recall | Validation Precision | Validation F1 | Validation FP | Held-out Test Recall | Held-out Test Precision | Held-out Test F1 | Held-out Test FP | Operating Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Catch More Fraud | Validation criteria: Recall_val >= 75%, maximizing precision. | 0.30 | 75.4% | 72.9% | 0.7414 | 16 | 76.0% | 78.1% | 0.7703 | 16 | recommended_operating_threshold |
+| Balanced F1-Score | Validation criteria: Maximize F1-score (harmonic mean of precision and recall). | 0.40 | 73.7% | 95.5% | 0.8317 | 2 | 74.7% | 90.3% | 0.8175 | 6 | recommended_operating_threshold |
+| Reduce False Alarms | Validation criteria: Minimize false positives to 0 with Recall_val > 0; if 0 FPs is unattainable on validation data, labeled illustrative. | 0.80 | 7.0% | 100.0% | 0.1311 | 0 | 12.0% | 100.0% | 0.2143 | 0 | recommended_operating_threshold |
+
+### Baseline Logistic Regression Operating Scenarios (Validation Tuned)
+
+| Preset | Selection Rule (Validation Only) | Selected Threshold | Validation Recall | Validation Precision | Validation F1 | Validation FP | Held-out Test Recall | Held-out Test Precision | Held-out Test F1 | Held-out Test FP | Operating Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Catch More Fraud | Validation criteria: Recall_val >= 75%, maximizing precision. | 0.95 | 80.7% | 25.3% | 0.3849 | 136 | 84.0% | 37.1% | 0.5143 | 107 | recommended_operating_threshold |
+| Balanced F1-Score | Validation criteria: Maximize F1-score (harmonic mean of precision and recall). | 0.95 | 80.7% | 25.3% | 0.3849 | 136 | 84.0% | 37.1% | 0.5143 | 107 | recommended_operating_threshold |
+| Reduce False Alarms | Validation criteria: Minimize false positives to 0 with Recall_val > 0; if 0 FPs is unattainable on validation data, labeled illustrative. | 0.95 | 80.7% | 25.3% | 0.3849 | 136 | 84.0% | 37.1% | 0.5143 | 107 | illustrative_test_example |
+
+> **Validation Feasibility Note**: For Logistic Regression, zero false alarms is **not attainable** on validation data (minimum validation false positives: 136 at threshold 0.95). Consequently, the 'Reduce False Alarms' preset for Logistic Regression is labeled as an **illustrative test-set example** rather than a viable operating recommendation.
+
+## 4. Retrospective Decision Threshold Sensitivity Analysis (Held-out Test Split)
+
+Candidate decision thresholds evaluated on the held-out test split to observe retrospective sensitivity and empirical trade-offs. These retrospective test evaluations are provided for sensitivity analysis and do NOT represent recommended operating thresholds.
 
 ### Random Forest Threshold Tradeoff (Held-out Test Split)
 
@@ -92,12 +114,12 @@ Decision thresholds govern the operational trade-off between fraud capture (reca
 | 0.90 | 0.2443 | 0.8533 | 0.3798 | 0.003481 | 198 | 64 | 11 |
 | 0.95 | 0.3706 | 0.84 | 0.5143 | 0.001881 | 107 | 63 | 12 |
 
-## 4. Stability Findings & Plain-Language Interpretation
+## 5. Stability Findings & Plain-Language Interpretation
 
 1. **Random Forest Stability**: Across all three chronological windows, Random Forest maintained consistent discrimination (PR-AUC 0.7727 to 0.8291, Mean: 0.8043 ± 0.0288). Fraud recall remained steady between 71.9% and 77.9%, and precision remained above 90.3% (reaching 97.1% in Window 2).
 2. **Logistic Regression Vulnerability to Concept Drift**: While Logistic Regression maintained high recall (84.0% to 89.5%), its precision swung violently from 3.9% in Window 1 (1,250 false alarms) to 37.1% in Window 3 (107 false alarms). Linear decision boundaries struggled with shifting fraud cluster density across time without continuous recalibration.
 3. **Threshold Economics**: Lowering the Random Forest threshold from 0.50 (69.3% recall, 4 false alarms) to 0.30 boosts recall to 76.0% (57 of 75 caught) with 16 false alarms. Conversely, raising the threshold to 0.80 eliminates all false alarms (0 false positives, FPR 0.0), but drops recall to 12.0%, missing 66 of 75 fraud attacks (88.0% missed).
 
-## 5. Production Disclaimer & Scope
+## 6. Production Disclaimer & Scope
 
 > Empirical evaluation on historical European cardholder transactions (Sept 2013). Results reflect specific historical PCA components and do not establish production readiness, adversarial robustness against modern evasions, or transferability across financial institutions.

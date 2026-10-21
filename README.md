@@ -76,17 +76,31 @@ Then open [http://localhost:5500](http://localhost:5500) in your browser.
 
 The web application includes an **Evidence-Based Fraud Model Learning Lab** accessible via the top navigation or the landing page. It provides a transparent, evidence-linked educational workbench for exploring how decision thresholds, class imbalances, and temporal variations impact fraud detection economics.
 
+### Strict Validation-Based Threshold Selection vs. Retrospective Test Sensitivity Analysis
+A core methodological principle of the Learning Lab is the **strict separation between threshold selection and final out-of-sample evaluation**:
+- **Operating Thresholds Selected on Validation Data Only**: Operating thresholds are derived exclusively from validation predictions and ground-truth labels (`val_probs`, `y_val`). Test labels and predictions cannot influence the selected thresholds.
+- **Untouched Held-Out Test Evaluation**: Once an operating threshold is selected via validation criteria, its real-world performance is scored against the untouched held-out test split (56,962 transactions, 75 frauds).
+- **Retrospective Sensitivity Analysis Slider**: The threshold slider is explicitly labeled for retrospective sensitivity analysis and empirical tradeoff visualization across candidate thresholds on the held-out test split. Slider adjustments represent exploratory sensitivity analysis and are not presented as recommended operating thresholds.
+
+### Operational Scenario Presets & Selection Rules
+
+| Preset | Operational Objective | Explicit Validation Selection Rule | Random Forest Threshold & Results | Logistic Regression Threshold & Results | Operating Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **🎯 Catch More Fraud** | High Recall / Aggressive Interception | $\text{Recall}_{\text{val}} \ge 75\%$, maximizing $\text{Precision}_{\text{val}}$ | **Threshold 0.30**<br>• Val: 75.4% Recall, 16 FP<br>• Test: 76.0% Recall, 16 FP | **Threshold 0.95**<br>• Val: 80.7% Recall, 136 FP<br>• Test: 84.0% Recall, 107 FP | Recommended Operating Point |
+| **⚖️ Balanced F1-Score** | Validation Optimum / Harmonic Balance | $\arg\max_t \text{F1}_{\text{val}}(t)$ | **Threshold 0.40**<br>• Val: 83.2% F1, 2 FP<br>• Test: 81.8% F1, 6 FP | **Threshold 0.95**<br>• Val: 38.5% F1, 136 FP<br>• Test: 51.4% F1, 107 FP | Recommended Operating Point |
+| **🛡️ Reduce False Alarms** | Customer Friction Minimization | $\text{FP}_{\text{val}} == 0$ with $\text{Recall}_{\text{val}} > 0$; if 0 FPs is unattainable, labeled illustrative | **Threshold 0.80**<br>• Val: 0 FP, 7.0% Recall<br>• Test: 0 FP, 12.0% Recall (66 missed) | **Threshold 0.95** (Min Val FP = 136)<br>• Val: 136 FP, 80.7% Recall<br>• Test: 107 FP, 84.0% Recall | **RF**: Recommended<br>**LR**: Illustrative Test Example |
+
+> **Validation Feasibility Note on Linear Models**: Zero false alarms cannot be achieved by Logistic Regression on validation data (minimum validation false positives: 136 at threshold 0.95). In accordance with leakage prevention and methodological rigor, the 'Reduce False Alarms' preset for Logistic Regression is clearly flagged as an **illustrative test-set example** rather than an operating recommendation.
+
 ### Key Capabilities
-1. **Interactive Threshold Slider (0.05 to 0.95)**:
-   - Adjust the operating cutoff across candidate thresholds evaluated on the held-out test split (56,962 transactions, 75 frauds).
+1. **Retrospective Test Sensitivity Slider (0.05 to 0.95)**:
+   - Explore retrospective performance across candidate thresholds evaluated on the held-out test split (56,962 transactions, 75 frauds).
    - Dynamic plain-language narrative explains what changes as the threshold moves (e.g. lowering threshold from 0.50 to 0.30 catches 5 additional frauds while generating 12 additional false alarms).
 2. **Operational Scenario Presets**:
-   - **🎯 Catch More Fraud (High Recall)**: Lower threshold (0.30) to capture 76.0% of fraud attacks (57 of 75 caught) with 16 false alarms.
-   - **⚖️ Balanced F1 (Validation Optimum)**: Threshold (0.40) tuned strictly on validation data to maximize harmonic balance (F1: 81.8%, 6 false alarms).
-   - **🛡️ Reduce False Alarms (High Precision)**: Conservative threshold (0.80) to eliminate false alarms (0 false positives), at the expense of missing 66 attacks (12.0% recall).
+   - One-click access to presets selected strictly on validation data, displaying both validation selection criteria and resulting test performance.
 3. **Evidence-Linked Metrics & Visual Confusion Matrix**:
    - Live 2x2 grid (TP, FP, FN, TN) displaying exact counts from checked-in benchmark reports.
-   - 4 primary metric cards: Recall, Precision, F1-Score, and False Positive Rate.
+   - 4 primary metric cards: Recall, Precision, F1-Score, and False Positive Rate (with complete zero-denominator protections when TP=0 or FP=0).
 4. **Walk-Forward Temporal Robustness Explorer**:
    - Compares performance across 3 expanding chronological windows (0%–80%, 0%–90%, 0%–100%).
    - Demonstrates Random Forest temporal invariance (PR-AUC 0.7727–0.8291, mean 0.8043 ± 0.0288) versus Logistic Regression precision collapse (37.1% down to 3.9% with 1,250 false alarms in Window 1).
@@ -139,11 +153,11 @@ The offline benchmark evaluates models against the real-world **Kaggle / ULB Mac
   *Rationale: Random cross-validation in temporal fraud datasets creates massive look-ahead data leakage because fraud campaigns occur in clustered time bursts. A chronological split reflects real operational deployment.*
 - **Walk-Forward Temporal Robustness (Expanding Windows)**: Evaluates models across three sequential expanding chronological windows (Window 1: 0%–80%, Window 2: 0%–90%, Window 3: 0%–100%) to verify performance stability over shifting fraud attack clusters.
 - **Strict Preprocessing Isolation**: `RobustScaler` is fitted **strictly** on training data (`X_train`) of each respective window and applied downstream to validation and test sets.
-- **Validation-Tuned Decision Threshold**: Rather than assuming an arbitrary `0.5` cutoff, decision thresholds are selected on the validation set to optimize the precision-recall trade-off before final evaluation on the untouched test split.
-- **Decision Threshold Sensitivity Analysis**: Evaluates operating points from 0.05 to 0.95 on held-out test data to document the precision, recall, and false-alarm tradeoff.
+- **Validation-Derived Operating Scenarios**: Operating decision thresholds are derived strictly on validation data (`y_val`, `val_probs`), ensuring test split labels and metrics cannot influence scenario threshold selection.
+- **Retrospective Decision Threshold Sensitivity Analysis**: Multi-threshold sweeps (0.05 to 0.95) are evaluated on held-out test data for sensitivity exploration, with explicit UI labeling that slider positions do not represent recommended operating cutoffs.
 - **Report Generation**: Outputs are saved to:
-  - `reports/real_data_evaluation.json` (machine-readable metrics, multi-window stats, threshold sweeps, and metadata)
-  - `reports/real_data_evaluation.md` (formatted markdown summary with dynamically verified stability prose)
+  - `reports/real_data_evaluation.json` (machine-readable metrics, multi-window stats, threshold sweeps, operating scenarios, and metadata)
+  - `reports/real_data_evaluation.md` (formatted markdown summary with validation scenario tables and dynamically verified stability prose)
 
 ### Benchmark Metrics Tracked
 - **PR-AUC (Average Precision)**: Primary metric for severe class imbalance.

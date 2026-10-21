@@ -28,6 +28,7 @@ from evaluate_real_data import (
     compute_aggregate_window_metrics,
     generate_stability_prose,
     compute_file_sha256,
+    select_operating_scenarios_from_validation,
     run_benchmark,
 )
 
@@ -286,12 +287,13 @@ def test_mock_benchmark_pipeline_execution():
             md_content = f.read()
             assert "## 1. Reference Single Chronological Split" in md_content
             assert "## 2. Walk-Forward Temporal Robustness Analysis" in md_content
-            assert "## 3. Decision Threshold Sensitivity Analysis" in md_content
+            assert "## 3. Operating Scenarios Tuned Strictly on Validation Data" in md_content
+            assert "## 4. Retrospective Decision Threshold Sensitivity Analysis" in md_content
             assert "Non-Independence Disclosure" in md_content
 
 
 def test_report_prose_consistency_with_computed_metrics():
-    """Verify that prose claims in Section 4 strictly match the underlying JSON metrics."""
+    """Verify that prose claims in Section 5 strictly match the underlying JSON metrics."""
     json_path = os.path.join("reports", "real_data_evaluation.json")
     md_path = os.path.join("reports", "real_data_evaluation.md")
 
@@ -308,7 +310,7 @@ def test_report_prose_consistency_with_computed_metrics():
     agg_rf = temporal["aggregate_metrics"]["random_forest"]["tuned_threshold_aggregate"]["metrics_summary"]
     tradeoffs_rf = {round(r["threshold"], 2): r for r in data["threshold_tradeoff_analysis"]["random_forest"]}
 
-    # Verify Section 4 text contains the exact PR-AUC aggregate mean and range
+    # Verify Section 5 text contains the exact PR-AUC aggregate mean and range
     rf_mean_str = f"Mean: {agg_rf['pr_auc']['mean']} ± {agg_rf['pr_auc']['std']}"
     rf_range_str = f"PR-AUC {agg_rf['pr_auc']['min']} to {agg_rf['pr_auc']['max']}"
     assert rf_mean_str in md_text, f"Expected '{rf_mean_str}' in markdown prose."
@@ -332,4 +334,141 @@ def test_report_prose_consistency_with_computed_metrics():
     assert expected_80_recall in md_text, f"Expected recall '{expected_80_recall}' in prose."
     assert expected_80_fn in md_text, f"Expected '{expected_80_fn}' in prose."
     assert expected_80_missed_pct in md_text, f"Expected '{expected_80_missed_pct}' in prose."
+
+
+def test_scenario_thresholds_derived_from_validation_data_only():
+    """
+    Regression test proving that operating scenario thresholds are selected strictly on validation data.
+    Mutating, inverting, or corrupting test-set labels or probabilities must have ZERO effect on selected thresholds.
+    """
+    np.random.seed(42)
+    n_val = 200
+    y_val = np.array([0] * 180 + [1] * 20)
+    # Validation probabilities with clear gradient
+    val_probs = np.linspace(0.01, 0.99, n_val)
+    val_probs[y_val == 1] = np.random.uniform(0.35, 0.95, size=20)
+
+    # Clean test set
+    n_test = 200
+    y_test_clean = np.array([0] * 180 + [1] * 20)
+    test_probs_clean = np.linspace(0.05, 0.95, n_test)
+
+    baseline_scenarios = select_operating_scenarios_from_validation(
+        y_val, val_probs, y_test_clean, test_probs_clean
+    )
+    baseline_thresholds = {s["id"]: s["selected_threshold"] for s in baseline_scenarios}
+
+    # Severe Mutation 1: Invert test labels completely
+    y_test_inverted = 1 - y_test_clean
+    scenarios_inverted = select_operating_scenarios_from_validation(
+        y_val, val_probs, y_test_inverted, test_probs_clean
+    )
+    thresholds_inverted = {s["id"]: s["selected_threshold"] for s in scenarios_inverted}
+    assert thresholds_inverted == baseline_thresholds, "Inverting test labels changed selected thresholds!"
+
+    # Severe Mutation 2: Replace test probabilities with random noise
+    test_probs_noise = np.random.uniform(0.0, 1.0, size=n_test)
+    scenarios_noise = select_operating_scenarios_from_validation(
+        y_val, val_probs, y_test_clean, test_probs_noise
+    )
+    thresholds_noise = {s["id"]: s["selected_threshold"] for s in scenarios_noise}
+    assert thresholds_noise == baseline_thresholds, "Changing test probabilities changed selected thresholds!"
+
+    # Severe Mutation 3: Set all test labels to zero (no fraud in test)
+    y_test_all_zero = np.zeros(n_test, dtype=int)
+    scenarios_zero = select_operating_scenarios_from_validation(
+        y_val, val_probs, y_test_all_zero, test_probs_clean
+    )
+    thresholds_zero = {s["id"]: s["selected_threshold"] for s in scenarios_zero}
+    assert thresholds_zero == baseline_thresholds, "Zeroing test fraud labels changed selected thresholds!"
+
+
+def test_unsupported_validation_scenario_labeled_illustrative():
+    """Verify that when zero false alarms cannot be achieved on validation data, it is marked illustrative."""
+    # Validation data where even at threshold 0.95, FP > 0
+    y_val = np.array([0] * 100 + [1] * 10)
+    val_probs = np.full(110, 0.99)
+    y_test = np.array([0] * 100 + [1] * 10)
+    test_probs = np.full(110, 0.99)
+
+    scenarios = select_operating_scenarios_from_validation(y_val, val_probs, y_test, test_probs)
+    reduce_sc = next(s for s in scenarios if s["id"] == "reduce_alarms")
+
+    assert reduce_sc["is_validation_supported"] is False
+    assert reduce_sc["operating_status"] == "illustrative_test_example"
+    assert "Illustrative Test Example" in reduce_sc["badge"]
+    assert "not attainable on validation data" in reduce_sc["justification"]
+
+
+def test_evaluate_predictions_zero_positives_and_zero_denominators():
+    """Verify evaluate_predictions safely handles zero predicted positives, zero true positives, and threshold=1.0."""
+    y_true = np.array([0] * 50 + [1] * 10)
+    probs = np.linspace(0.1, 0.9, 60)
+
+    # 1. Threshold = 1.0 (no sample has prob >= 1.0, so predicted positives == 0)
+    res_1 = evaluate_predictions(y_true, probs, threshold=1.0)
+    assert res_1["precision"] == 0.0
+    assert res_1["recall"] == 0.0
+    assert res_1["f1_score"] == 0.0
+    assert res_1["false_positive_rate"] == 0.0
+    assert res_1["confusion_matrix"]["true_positives"] == 0
+    assert res_1["confusion_matrix"]["false_positives"] == 0
+    assert res_1["confusion_matrix"]["false_negatives"] == 10
+    assert res_1["confusion_matrix"]["true_negatives"] == 50
+
+    # 2. Ground truth with zero positive labels (y_true all zeros)
+    y_all_zero = np.zeros(50, dtype=int)
+    probs_zero = np.linspace(0.1, 0.8, 50)
+    res_zero = evaluate_predictions(y_all_zero, probs_zero, threshold=0.5)
+    assert res_zero["recall"] == 0.0
+    assert res_zero["confusion_matrix"]["true_positives"] == 0
+    assert res_zero["confusion_matrix"]["false_negatives"] == 0
+
+    # 3. Ground truth with zero negative labels (y_true all ones)
+    y_all_one = np.ones(30, dtype=int)
+    probs_one = np.linspace(0.2, 0.9, 30)
+    res_one = evaluate_predictions(y_all_one, probs_one, threshold=0.5)
+    assert res_one["false_positive_rate"] == 0.0
+    assert res_one["confusion_matrix"]["false_positives"] == 0
+    assert res_one["confusion_matrix"]["true_negatives"] == 0
+
+
+def test_report_scenarios_consistency():
+    """Verify that reports/real_data_evaluation.json contains operating_scenarios matching markdown report."""
+    json_path = os.path.join("reports", "real_data_evaluation.json")
+    md_path = os.path.join("reports", "real_data_evaluation.md")
+
+    if not os.path.exists(json_path) or not os.path.exists(md_path):
+        pytest.skip("Report files not present locally.")
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    with open(md_path, "r", encoding="utf-8") as f:
+        md_text = f.read()
+
+    assert "operating_scenarios" in data
+    assert "random_forest" in data["operating_scenarios"]
+    assert "baseline_logistic_regression" in data["operating_scenarios"]
+    assert len(data["operating_scenarios"]["random_forest"]) == 3
+    assert len(data["operating_scenarios"]["baseline_logistic_regression"]) == 3
+
+    # Check markdown headers
+    assert "## 3. Operating Scenarios Tuned Strictly on Validation Data" in md_text
+    assert "## 4. Retrospective Decision Threshold Sensitivity Analysis (Held-out Test Split)" in md_text
+    assert "## 5. Stability Findings & Plain-Language Interpretation" in md_text
+    assert "## 6. Production Disclaimer & Scope" in md_text
+
+    # Verify RF operating thresholds appear in the table
+    rf_scenarios = data["operating_scenarios"]["random_forest"]
+    for sc in rf_scenarios:
+        t_str = f"{sc['selected_threshold']:.2f}"
+        assert t_str in md_text
+        assert sc["title"] in md_text
+
+    # Verify LR reduce_alarms is flagged as illustrative
+    lr_scenarios = data["operating_scenarios"]["baseline_logistic_regression"]
+    lr_reduce = next(s for s in lr_scenarios if s["id"] == "reduce_alarms")
+    assert lr_reduce["operating_status"] == "illustrative_test_example"
+    assert "illustrative_test_example" in md_text
 

@@ -253,6 +253,132 @@ def compute_threshold_tradeoff_analysis(
     return tradeoffs
 
 
+def select_operating_scenarios_from_validation(
+    y_val: np.ndarray,
+    val_probs: np.ndarray,
+    y_test: np.ndarray,
+    test_probs: np.ndarray,
+    candidate_thresholds: list = None,
+    min_recall_catch_fraud: float = 0.75,
+) -> list:
+    """
+    Select operational decision thresholds STRICTLY using validation predictions and labels.
+    Once thresholds are chosen based on validation criteria alone, evaluate out-of-sample
+    performance on the untouched held-out test split.
+
+    Test labels and predictions CANNOT influence the selected threshold.
+
+    Scenarios:
+    1. 'catch_fraud': Recall_val >= min_recall_catch_fraud (75%) maximizing Precision_val.
+    2. 'balanced_f1': argmax F1_val (harmonic mean of precision and recall).
+    3. 'reduce_alarms': FP_val == 0 with Recall_val > 0. If zero FPs is unattainable on validation data,
+       the scenario is marked is_validation_supported=False and labeled as an illustrative test example.
+    """
+    if candidate_thresholds is None:
+        candidate_thresholds = CANDIDATE_THRESHOLDS
+
+    val_tradeoffs = [evaluate_predictions(y_val, val_probs, threshold=t) for t in candidate_thresholds]
+    test_tradeoffs_by_t = {round(t, 4): evaluate_predictions(y_test, test_probs, threshold=t) for t in candidate_thresholds}
+
+    scenarios = []
+
+    # 1. Catch More Fraud (High Recall / Aggressive)
+    # Validation Selection Rule: Recall_val >= min_recall_catch_fraud (75%) maximizing Precision_val
+    eligible_catch = [r for r in val_tradeoffs if r["recall"] >= min_recall_catch_fraud]
+    if eligible_catch:
+        best_catch_val = max(eligible_catch, key=lambda r: (r["precision"], r["threshold"]))
+        catch_supported = True
+    else:
+        best_catch_val = max(val_tradeoffs, key=lambda r: (r["recall"], r["threshold"]))
+        catch_supported = False
+
+    t_catch = best_catch_val["threshold"]
+    test_catch = test_tradeoffs_by_t[round(t_catch, 4)]
+    scenarios.append({
+        "id": "catch_fraud",
+        "title": "Catch More Fraud",
+        "icon": "🎯",
+        "badge": "High Recall (Aggressive)",
+        "selected_threshold": t_catch,
+        "selection_rule": f"Validation criteria: Recall_val >= {min_recall_catch_fraud * 100:.0f}%, maximizing precision.",
+        "is_validation_supported": catch_supported,
+        "operating_status": "recommended_operating_threshold" if catch_supported else "illustrative_test_example",
+        "justification": (
+            f"Prioritizes early interception of fraud attacks before authorization. "
+            f"Selected strictly on validation data at threshold {t_catch:.2f} where validation recall reaches "
+            f"{best_catch_val['recall']*100:.1f}% with {best_catch_val['confusion_matrix']['false_positives']} validation false alarms."
+        ),
+        "validation_metrics": best_catch_val,
+        "held_out_test_metrics": test_catch,
+    })
+
+    # 2. Balanced F1-Score (Validation Optimum)
+    # Validation Selection Rule: argmax F1_val
+    best_f1_val = max(val_tradeoffs, key=lambda r: (r["f1_score"], r["recall"]))
+    t_f1 = best_f1_val["threshold"]
+    test_f1 = test_tradeoffs_by_t[round(t_f1, 4)]
+    scenarios.append({
+        "id": "balanced_f1",
+        "title": "Balanced F1-Score",
+        "icon": "⚖️",
+        "badge": "Validation Optimum",
+        "selected_threshold": t_f1,
+        "selection_rule": "Validation criteria: Maximize F1-score (harmonic mean of precision and recall).",
+        "is_validation_supported": True,
+        "operating_status": "recommended_operating_threshold",
+        "justification": (
+            f"Optimizes harmonic balance between fraud capture and false alarms. "
+            f"Selected strictly at threshold {t_f1:.2f} where validation F1 peaks at {best_f1_val['f1_score']:.4f} "
+            f"({best_f1_val['recall']*100:.1f}% recall, {best_f1_val['precision']*100:.1f}% precision)."
+        ),
+        "validation_metrics": best_f1_val,
+        "held_out_test_metrics": test_f1,
+    })
+
+    # 3. Reduce False Alarms (High Precision / Friction Minimization)
+    # Validation Selection Rule: FP_val == 0 while Recall_val > 0.
+    zero_fp_val = [r for r in val_tradeoffs if r["confusion_matrix"]["false_positives"] == 0 and r["recall"] > 0]
+    if zero_fp_val:
+        best_alarm_val = max(zero_fp_val, key=lambda r: (r["threshold"], r["recall"]))
+        alarm_supported = True
+        status = "recommended_operating_threshold"
+        justification = (
+            f"Suppresses customer friction by eliminating false declines. "
+            f"Selected strictly at threshold {best_alarm_val['threshold']:.2f} which achieves 0 false alarms on validation data "
+            f"while still capturing {best_alarm_val['recall']*100:.1f}% of validation fraud attacks."
+        )
+    else:
+        min_fp_val = [r for r in val_tradeoffs if r["recall"] > 0]
+        best_alarm_val = min(min_fp_val, key=lambda r: (r["confusion_matrix"]["false_positives"], -r["threshold"]))
+        alarm_supported = False
+        status = "illustrative_test_example"
+        justification = (
+            f"Zero false alarms is not attainable on validation data for this model (minimum validation false alarms: "
+            f"{best_alarm_val['confusion_matrix']['false_positives']}). Labeled as an illustrative test-set example rather than an operating recommendation."
+        )
+
+    t_alarm = best_alarm_val["threshold"]
+    test_alarm = test_tradeoffs_by_t[round(t_alarm, 4)]
+    scenarios.append({
+        "id": "reduce_alarms",
+        "title": "Reduce False Alarms",
+        "icon": "🛡️",
+        "badge": "High Precision (Conservative)" if alarm_supported else "Illustrative Test Example",
+        "selected_threshold": t_alarm,
+        "selection_rule": (
+            "Validation criteria: Minimize false positives to 0 with Recall_val > 0; "
+            "if 0 FPs is unattainable on validation data, labeled illustrative."
+        ),
+        "is_validation_supported": alarm_supported,
+        "operating_status": status,
+        "justification": justification,
+        "validation_metrics": best_alarm_val,
+        "held_out_test_metrics": test_alarm,
+    })
+
+    return scenarios
+
+
 def compute_aggregate_window_metrics(window_metric_list: list) -> dict:
     """
     Compute mean, std, min, max, spread across multiple temporal windows.
@@ -487,7 +613,7 @@ def generate_stability_prose(temporal_eval: dict, tradeoff_rf: list, tradeoff_ba
     rf_missed_pct_80 = round((rf_fn_80 / total_test_frauds * 100), 1) if total_test_frauds > 0 else 0.0
 
     prose = (
-        "## 4. Stability Findings & Plain-Language Interpretation\n\n"
+        "## 5. Stability Findings & Plain-Language Interpretation\n\n"
         f"1. **Random Forest Stability**: Across all three chronological windows, Random Forest maintained consistent discrimination (PR-AUC {rf_prauc_min} to {rf_prauc_max}, Mean: {rf_prauc_mean} ± {rf_prauc_std}). Fraud recall remained steady between {rf_rec_min*100:.1f}% and {rf_rec_max*100:.1f}%, and precision remained above {rf_prec_min*100:.1f}% (reaching {rf_prec_max*100:.1f}% in Window 2).\n"
         f"2. **Logistic Regression Vulnerability to Concept Drift**: While Logistic Regression maintained high recall ({lr_rec_min*100:.1f}% to {lr_rec_max*100:.1f}%), its precision swung violently from {lr_prec_min*100:.1f}% in Window 1 ({lr_fp_w1:,} false alarms) to {lr_prec_max*100:.1f}% in Window 3 ({lr_fp_last:,} false alarms). Linear decision boundaries struggled with shifting fraud cluster density across time without continuous recalibration.\n"
         f"3. **Threshold Economics**: Lowering the Random Forest threshold from 0.50 ({rf_rec_50*100:.1f}% recall, {rf_fp_50} false alarms) to 0.30 boosts recall to {rf_rec_30*100:.1f}% ({rf_tp_30} of {total_test_frauds} caught) with {rf_fp_30} false alarms. Conversely, raising the threshold to 0.80 eliminates all false alarms ({rf_fp_80} false positives, FPR 0.0), but drops recall to {rf_rec_80*100:.1f}%, missing {rf_fn_80} of {total_test_frauds} fraud attacks ({rf_missed_pct_80:.1f}% missed).\n\n"
@@ -585,12 +711,17 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
     eval_rf_std = evaluate_predictions(y_test, test_probs_rf, threshold=0.5)
     eval_rf_tuned = evaluate_predictions(y_test, test_probs_rf, threshold=best_thresh_rf)
 
-    # Threshold tradeoff analysis on reference splits
-    print("\n[5/6] Computing multi-threshold sensitivity curves on held-out test split...")
+    # 5. Operational Scenario Selection Derived Strictly from Validation Data
+    print("\n[5/6] Selecting operational scenarios strictly on validation data (test split untouched)...")
+    scenarios_rf = select_operating_scenarios_from_validation(y_val, val_probs_rf, y_test, test_probs_rf)
+    scenarios_base = select_operating_scenarios_from_validation(y_val, val_probs_base, y_test, test_probs_base)
+
+    # 6. Retrospective multi-threshold sensitivity curves on held-out test split
+    print("      • Computing retrospective multi-threshold sensitivity curves on held-out test split...")
     tradeoff_rf = compute_threshold_tradeoff_analysis(y_test, test_probs_rf)
     tradeoff_base = compute_threshold_tradeoff_analysis(y_test, test_probs_base)
 
-    # 5. Temporal Walk-Forward Robustness Evaluation
+    # Temporal Walk-Forward Robustness Evaluation
     print("\n[6/6] Executing multi-window walk-forward temporal evaluation (expanding windows)...")
     temporal_eval = run_temporal_window_evaluation(df, feature_cols, fast_mode=fast_mode)
 
@@ -624,6 +755,15 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
                 "fraudulent_count": n_fraud,
                 "fraud_percentage": round(fraud_pct, 4),
             },
+        },
+        "operating_scenarios": {
+            "methodology": (
+                "Operating decision thresholds are selected strictly using validation predictions and labels (y_val, val_probs) "
+                "under explicit operational objective criteria. Held-out test data (y_test, test_probs) is kept completely untouched "
+                "during scenario selection and is reserved exclusively for final unbiased out-of-sample evaluation."
+            ),
+            "random_forest": scenarios_rf,
+            "baseline_logistic_regression": scenarios_base,
         },
         "results": {
             "baseline_logistic_regression": {
@@ -665,8 +805,9 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
         "temporal_window_evaluation": temporal_eval,
         "threshold_tradeoff_analysis": {
             "methodology": (
-                "Candidate decision thresholds evaluated on the held-out test split to observe the precision/recall/FPR tradeoff. "
-                "Operating decision thresholds used by the system are tuned strictly on validation data."
+                "Multi-threshold sensitivity analysis evaluated across candidate thresholds on the held-out test split "
+                "for retrospective exploration and tradeoff visualization. These candidate points describe out-of-sample behavior "
+                "and are NOT recommended operating thresholds (which are selected strictly on validation data)."
             ),
             "candidate_thresholds": CANDIDATE_THRESHOLDS,
             "random_forest": tradeoff_rf,
@@ -750,8 +891,33 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
 
         f.write("> **Non-Independence Disclosure**: Temporal windows from this sequence are **not independent samples**. They share expanding historical training horizons, sequential temporal autocorrelation, and clustered attack bursts occurring over a single 48-hour recording period. Aggregate mean and spread describe empirical trajectory across this timeline rather than independent identically distributed variance.\n\n")
 
-        f.write("## 3. Decision Threshold Sensitivity Analysis\n\n")
-        f.write("Decision thresholds govern the operational trade-off between fraud capture (recall) and customer friction (false positives). In this pipeline, the operating threshold is tuned **strictly on validation data**.\n\n")
+        f.write("## 3. Operating Scenarios Tuned Strictly on Validation Data\n\n")
+        f.write("Operating thresholds are selected **strictly using validation data** (`y_val`, `val_probs`) according to explicit operational criteria. "
+                "The held-out test split remains completely untouched during threshold tuning and is reserved exclusively for unbiased final evaluation.\n\n")
+
+        f.write("### Random Forest Operating Scenarios (Validation Tuned)\n\n")
+        f.write("| Preset | Selection Rule (Validation Only) | Selected Threshold | Validation Recall | Validation Precision | Validation F1 | Validation FP | Held-out Test Recall | Held-out Test Precision | Held-out Test F1 | Held-out Test FP | Operating Status |\n")
+        f.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
+        for sc in scenarios_rf:
+            vm = sc["validation_metrics"]
+            tm = sc["held_out_test_metrics"]
+            f.write(f"| {sc['title']} | {sc['selection_rule']} | {sc['selected_threshold']:.2f} | {vm['recall']*100:.1f}% | {vm['precision']*100:.1f}% | {vm['f1_score']:.4f} | {vm['confusion_matrix']['false_positives']} | {tm['recall']*100:.1f}% | {tm['precision']*100:.1f}% | {tm['f1_score']:.4f} | {tm['confusion_matrix']['false_positives']} | {sc['operating_status']} |\n")
+        f.write("\n")
+
+        f.write("### Baseline Logistic Regression Operating Scenarios (Validation Tuned)\n\n")
+        f.write("| Preset | Selection Rule (Validation Only) | Selected Threshold | Validation Recall | Validation Precision | Validation F1 | Validation FP | Held-out Test Recall | Held-out Test Precision | Held-out Test F1 | Held-out Test FP | Operating Status |\n")
+        f.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
+        for sc in scenarios_base:
+            vm = sc["validation_metrics"]
+            tm = sc["held_out_test_metrics"]
+            f.write(f"| {sc['title']} | {sc['selection_rule']} | {sc['selected_threshold']:.2f} | {vm['recall']*100:.1f}% | {vm['precision']*100:.1f}% | {vm['f1_score']:.4f} | {vm['confusion_matrix']['false_positives']} | {tm['recall']*100:.1f}% | {tm['precision']*100:.1f}% | {tm['f1_score']:.4f} | {tm['confusion_matrix']['false_positives']} | {sc['operating_status']} |\n")
+        f.write("\n")
+        f.write("> **Validation Feasibility Note**: For Logistic Regression, zero false alarms is **not attainable** on validation data (minimum validation false positives: 136 at threshold 0.95). Consequently, the 'Reduce False Alarms' preset for Logistic Regression is labeled as an **illustrative test-set example** rather than a viable operating recommendation.\n\n")
+
+        f.write("## 4. Retrospective Decision Threshold Sensitivity Analysis (Held-out Test Split)\n\n")
+        f.write("Candidate decision thresholds evaluated on the held-out test split to observe retrospective sensitivity and empirical trade-offs. "
+                "These retrospective test evaluations are provided for sensitivity analysis and do NOT represent recommended operating thresholds.\n\n")
+
         f.write("### Random Forest Threshold Tradeoff (Held-out Test Split)\n\n")
         f.write("| Threshold | Precision | Recall | F1-Score | FPR | False Positives | True Positives | False Negatives |\n")
         f.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
@@ -768,11 +934,11 @@ def run_benchmark(data_path: str = "data/creditcard.csv", report_dir: str = "rep
             f.write(f"| {row['threshold']:.2f} | {row['precision']} | {row['recall']} | {row['f1_score']} | {row['false_positive_rate']} | {c['false_positives']} | {c['true_positives']} | {c['false_negatives']} |\n")
         f.write("\n")
 
-        # 4. Dynamic stability findings matching exact computed metrics
+        # 5. Dynamic stability findings matching exact computed metrics
         stability_prose = generate_stability_prose(temporal_eval, tradeoff_rf, tradeoff_base)
         f.write(stability_prose)
 
-        f.write("## 5. Production Disclaimer & Scope\n\n")
+        f.write("## 6. Production Disclaimer & Scope\n\n")
         f.write(f"> {report_payload['disclaimer']}\n")
 
     print(f"\nSaved updated benchmark reports:")
